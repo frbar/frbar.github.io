@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<!-- Mochi & les Mots — build 2026-11-15 21:32:45 -->
+<!-- Mochi & les Mots — build 2026-11-15 21:40:59 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#fbf3e4">
@@ -3617,6 +3617,168 @@ ReviFun.registerExercise({
       ],
       explain: 'Trois familles : a, i, u.',
     },
+  ],
+});
+
+</script>
+<script>/* data/exercises/20-ps-atelier-singulier.js */
+ReviFun.registerExercise({
+  id: 'ps-atelier-singulier',
+  chapter: 'Le grimoire du passé simple',
+  order: 200,
+  title: 'Atelier d\'écriture : au singulier',
+  subtitle: 'Réécris les phrases au passé simple',
+  emoji: '✍️',
+  color: '#b91c1c',
+  sheet: {
+    intro: 'Place à l\'écriture ! Ici, pas de boutons : c\'est <b>toi</b> qui écris le verbe au passé simple, avec je, tu, il ou elle.',
+    cards: [
+      {
+        emoji: '🔄',
+        title: 'Comment transformer',
+        html: `<p>On garde le même sujet et on change seulement le verbe :</p>
+          <ul>
+            <li>Le chat <b>marche</b>. → Le chat <span class="hl">marcha</span>.</li>
+            <li>Je <b>regarde</b> le ciel. → Je <span class="hl">regardai</span> le ciel.</li>
+          </ul>`,
+      },
+      {
+        emoji: '📋',
+        title: 'Les terminaisons du singulier',
+        html: `<div class="table-wrap"><table>
+          <tr><th>famille</th><th>je</th><th>tu</th><th>il, elle</th></tr>
+          <tr><td>en -a (chanter)</td><td>-ai</td><td>-as</td><td>-a</td></tr>
+          <tr><td>en -i (finir, prendre)</td><td>-is</td><td>-is</td><td>-it</td></tr>
+          <tr><td>en -u (courir, lire)</td><td>-us</td><td>-us</td><td>-ut</td></tr>
+          <tr><td>en -in (venir)</td><td>-ins</td><td>-ins</td><td>-int</td></tr>
+        </table></div>
+        <p>Sans oublier : il <b>fut</b> (être), il <b>eut</b> (avoir), il <b>commença</b>, il <b>mangea</b>.</p>`,
+      },
+    ],
+    trick: `Écris lentement et relis la fin du mot avant de valider : <b>je → -ai / -is / -us</b>, <b>il → -a / -it / -ut</b>. Les accents comptent, la majuscule non ! 🖊️`,
+  },
+  questions: [
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Le chat marche. → Le chat ___.', answers: ['marcha'], explain: 'Marcher, il → marcha.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Elle finit son repas. → Elle ___ son repas.', answers: ['finit'], explain: 'Finir, elle → finit (même forme qu\'au présent !).' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Il prend son sac. → Il ___ son sac.', answers: ['prit'], explain: 'Prendre, il → prit.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Je regarde le ciel. → Je ___ le ciel.', answers: ['regardai'], explain: 'Regarder, je → regardai (sans s).' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Tu fais un vœu. → Tu ___ un vœu.', answers: ['fis'], explain: 'Faire, tu → fis.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Elle voit un dragon. → Elle ___ un dragon.', answers: ['vit'], explain: 'Voir, elle → vit.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Il vient vite. → Il ___ vite.', answers: ['vint'], explain: 'Venir, il → vint.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Le roi est content. → Le roi ___ content.', answers: ['fut'], explain: 'Être, il → fut.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Elle a peur. → Elle ___ peur.', answers: ['eut'], explain: 'Avoir, elle → eut.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Il court dehors. → Il ___ dehors.', answers: ['courut'], explain: 'Courir, il → courut (avec t).' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Je commence le livre. → Je ___ le livre.', answers: ['commençai'], explain: 'Commencer, je → commençai (cédille devant a).' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Il mange une pomme. → Il ___ une pomme.', answers: ['mangea'], explain: 'Manger, il → mangea (e devant a).' },
+    { type: 'errors', text: 'Le géant [prena|prit] sa massue et il [frapat|frappa] le sol.', explain: 'il prit ; il frappa (deux p, pas de t).' },
+    { type: 'choice', prompt: 'Réécris au passé simple', text: 'Il lit le journal. → Il ___ le journal.', options: ['lut', 'lit', 'lisa'], answer: 'lut', explain: 'Lire, il → lut. « Il lit » est le présent.' },
+  ],
+});
+
+</script>
+<script>/* data/exercises/21-ps-atelier-pluriel.js */
+ReviFun.registerExercise({
+  id: 'ps-atelier-pluriel',
+  chapter: 'Le grimoire du passé simple',
+  order: 210,
+  title: 'Atelier d\'écriture : au pluriel',
+  subtitle: 'Nous, vous, ils : attention aux accents',
+  emoji: '🖋️',
+  color: '#1d4ed8',
+  sheet: {
+    intro: 'Deuxième atelier : cette fois, tout se passe au <b>pluriel</b>. C\'est là que se cachent les accents… et les pièges !',
+    cards: [
+      {
+        emoji: '📋',
+        title: 'Les terminaisons du pluriel',
+        html: `<div class="table-wrap"><table>
+          <tr><th>famille</th><th>nous</th><th>vous</th><th>ils, elles</th></tr>
+          <tr><td>en -a (chanter)</td><td>-âmes</td><td>-âtes</td><td>-èrent</td></tr>
+          <tr><td>en -i (finir, faire)</td><td>-îmes</td><td>-îtes</td><td>-irent</td></tr>
+          <tr><td>en -u (lire, pouvoir)</td><td>-ûmes</td><td>-ûtes</td><td>-urent</td></tr>
+          <tr><td>en -in (venir)</td><td>-înmes</td><td>-întes</td><td>-inrent</td></tr>
+        </table></div>`,
+      },
+      {
+        emoji: '🎩',
+        title: 'Les accents à ne pas oublier',
+        html: `<ul>
+            <li><b>nous</b> et <b>vous</b> : un accent circonflexe → nous chant<span class="hl">â</span>mes, vous fin<span class="hl">î</span>tes</li>
+            <li><b>ils</b> des verbes en -er : un accent grave → ils chant<span class="hl">è</span>rent</li>
+            <li>ils firent, ils prirent, ils vinrent, ils purent : <b>pas d'accent</b></li>
+          </ul>`,
+      },
+    ],
+    trick: `Mes deux oreilles de chat 🐱 = les deux chapeaux ^ de <b>nous</b> et <b>vous</b>. Et « ils » des verbes en -er a un petit accent grave qui penche comme ma queue : <b>è</b> !`,
+  },
+  questions: [
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Ils chantent. → Ils ___.', answers: ['chantèrent'], explain: 'Chanter, ils → chantèrent.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Nous marchons. → Nous ___.', answers: ['marchâmes'], explain: 'Marcher, nous → marchâmes.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Vous finissez. → Vous ___.', answers: ['finîtes'], explain: 'Finir, vous → finîtes.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Elles prennent le train. → Elles ___ le train.', answers: ['prirent'], explain: 'Prendre, elles → prirent.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Nous sommes prêts. → Nous ___ prêts.', answers: ['fûmes'], explain: 'Être, nous → fûmes.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Ils ont froid. → Ils ___ froid.', answers: ['eurent'], explain: 'Avoir, ils → eurent.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Vous faites du bruit. → Vous ___ du bruit.', answers: ['fîtes'], explain: 'Faire, vous → fîtes.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Ils viennent ensemble. → Ils ___ ensemble.', answers: ['vinrent'], explain: 'Venir, ils → vinrent.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Nous lisons une histoire. → Nous ___ une histoire.', answers: ['lûmes'], explain: 'Lire, nous → lûmes.' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Elles mangent tout. → Elles ___ tout.', answers: ['mangèrent'], explain: 'Manger, elles → mangèrent (pas de e devant è).' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Nous commençons. → Nous ___.', answers: ['commençâmes'], explain: 'Commencer, nous → commençâmes (cédille devant a).' },
+    { type: 'fill', prompt: 'Réécris au passé simple', text: 'Vous voyez la mer. → Vous ___ la mer.', answers: ['vîtes'], explain: 'Voir, vous → vîtes.' },
+    { type: 'errors', text: 'Les pirates [chantérent|chantèrent] et nous [dansames|dansâmes] sur le pont.', explain: 'ils chantèrent (accent grave) ; nous dansâmes (accent circonflexe).' },
+    { type: 'choice', prompt: 'Réécris au passé simple', text: 'Ils peuvent partir. → Ils ___ partir.', options: ['purent', 'pouvèrent', 'purrent'], answer: 'purent', explain: 'Pouvoir, ils → purent.' },
+  ],
+});
+
+</script>
+<script>/* data/exercises/22-ps-dictee-dragon.js */
+ReviFun.registerExercise({
+  id: 'ps-dictee-dragon',
+  chapter: 'Le grimoire du passé simple',
+  order: 220,
+  title: 'La dictée du dragon',
+  subtitle: 'Écoute l\'histoire et écris les verbes',
+  emoji: '🎧',
+  color: '#047857',
+  sheet: {
+    intro: 'Dernier atelier : une <b>dictée</b> ! Appuie sur 🔊 pour écouter chaque phrase de l\'aventure, puis écris les verbes au passé simple.',
+    cards: [
+      {
+        emoji: '🔊',
+        title: 'Comment ça marche',
+        html: `<ul>
+            <li>Touche le bouton 🔊 pour entendre la phrase (autant de fois que tu veux).</li>
+            <li>L'infinitif est donné entre parenthèses pour t'aider.</li>
+            <li>Écris le verbe au <b>passé simple</b> : à l'oral, « il mangea » et « il mangeait » se ressemblent, c'est l'histoire qui te guide !</li>
+          </ul>`,
+      },
+      {
+        emoji: '✅',
+        title: 'Ta checklist de dictée',
+        html: `<ul>
+            <li>Qui fait l'action ? (singulier ou pluriel)</li>
+            <li>Quelle famille ? (-a, -i, -u, -in)</li>
+            <li>Les accents : nous r<span class="hl">î</span>mes, vous pr<span class="hl">î</span>tes, ils regard<span class="hl">è</span>rent</li>
+            <li>Les pièges : il lan<span class="hl">ç</span>a, il boug<span class="hl">e</span>a</li>
+          </ul>`,
+      },
+    ],
+    trick: `Pendant une dictée, je ferme les yeux, j'écoute la phrase en entier, PUIS j'écris. Et je relis toujours la fin du verbe une dernière fois 👀.`,
+  },
+  questions: [
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Un soir, Mochi ___ (entendre) un bruit étrange.', answers: ['entendit'], say: 'Un soir, Mochi entendit un bruit étrange.', explain: 'Entendre, il → entendit.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris les verbes au passé simple', text: 'Il ___ (monter) au grenier et ___ (ouvrir) la porte.', answers: ['monta', 'ouvrit'], say: 'Il monta au grenier et ouvrit la porte.', explain: 'il monta (-a) ; il ouvrit (-it).' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Un petit dragon ___ (sortir) de derrière une malle.', answers: ['sortit'], say: 'Un petit dragon sortit de derrière une malle.', explain: 'Sortir, il → sortit.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Les deux amis se ___ (regarder) longtemps.', answers: ['regardèrent'], say: 'Les deux amis se regardèrent longtemps.', explain: 'Regarder, ils → regardèrent.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Puis le dragon ___ (dire) : « Bonjour ! »', answers: ['dit'], say: 'Puis le dragon dit : Bonjour !', explain: 'Dire, il → dit.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris les verbes au passé simple', text: 'Mochi ___ (avoir) très peur, mais il ne ___ (bouger) pas.', answers: ['eut', 'bougea'], say: 'Mochi eut très peur, mais il ne bougea pas.', explain: 'il eut ; il bougea (e devant a).' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Nous ___ (rire) en lisant cette histoire.', answers: ['rîmes'], say: 'Nous rîmes en lisant cette histoire.', explain: 'Rire, nous → rîmes.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Les voisins ___ (venir) voir le dragon.', answers: ['vinrent'], say: 'Les voisins vinrent voir le dragon.', explain: 'Venir, ils → vinrent.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Vous ___ (prendre) des photos.', answers: ['prîtes'], say: 'Vous prîtes des photos.', explain: 'Prendre, vous → prîtes.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Le dragon ___ (lancer) une petite flamme.', answers: ['lança'], say: 'Le dragon lança une petite flamme.', explain: 'Lancer, il → lança (cédille devant a).' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris les verbes au passé simple', text: 'Tout le monde ___ (applaudir) et le dragon ___ (rougir).', answers: ['applaudit', 'rougit'], say: 'Tout le monde applaudit et le dragon rougit.', explain: 'il applaudit ; il rougit.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Ce jour-là, Mochi ___ (devenir) le chat le plus célèbre du quartier.', answers: ['devint'], say: 'Ce jour-là, Mochi devint le chat le plus célèbre du quartier.', explain: 'Devenir, il → devint.' },
+    { type: 'errors', text: 'Le dragon [mangat|mangea] une crêpe et les enfants [rièrent|rirent].', explain: 'il mangea (pas de t) ; ils rirent.' },
+    { type: 'choice', text: 'Enfin, ils ___ amis pour toujours.', options: ['devinrent', 'devenirent', 'devinèrent'], answer: 'devinrent', explain: 'Devenir, ils → devinrent. (« devinèrent » vient de deviner !)' },
   ],
 });
 
