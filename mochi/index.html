@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<!-- Mochi & les Mots — build 2026-11-19 08:28:29 -->
+<!-- Mochi & les Mots — build 2026-11-19 08:38:55 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#fbf3e4">
@@ -175,6 +175,23 @@ button:disabled { cursor: default; }
   border-top: 0; border-bottom-color: var(--card);
 }
 .house-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.house-actions.with-wand { grid-template-columns: 1fr auto auto; }
+.wand-btn { background: #efe4ff; box-shadow: 0 3px 0 #c9b2f0; }
+
+/* Mode déplacement (baguette magique) */
+.scene-wrap.editing { border-color: #7c3aed; box-shadow: 0 0 0 4px #e9d5ff, var(--shadow); }
+.scene-wrap.editing .scene { touch-action: none; }
+.scene-wrap.editing .item { cursor: grab; }
+.scene-wrap.editing .item:active { cursor: grabbing; }
+.scene-wrap.editing .scene-cat { pointer-events: none; opacity: .55; }
+.scene-wrap.editing .item.selected .item-inner { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 6px #7c3aed); }
+.edit-bar {
+  background: #f5efff; border: 2px dashed #b794f4; border-radius: var(--radius); padding: 12px 14px; margin: 12px 0;
+  display: grid; gap: 10px;
+}
+.edit-help { font-weight: 600; }
+.edit-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.edit-actions [data-act="done"] { margin-left: auto; background: #7c3aed; }
 @media (max-width: 420px) { .house-actions { grid-template-columns: 1fr; } }
 
 /* ---------- Chemin des leçons ---------- */
@@ -620,6 +637,7 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
       lessons: {},      // id -> voir newLessonRecord()
       owned: [],        // ids des objets achetés
       stored: [],       // objets achetés mais rangés (non affichés)
+      positions: {},    // id d'objet -> { x, y, z } choisis avec la baguette magique
       trophies: [],     // ids des trophées gagnés
       streak: { last: null, days: 0, best: 0 },
       introDone: false,
@@ -635,6 +653,7 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
     out.streak = Object.assign(defaultSave().streak, data.streak || {});
     ['owned', 'stored', 'trophies'].forEach(k => { if (!Array.isArray(out[k])) out[k] = []; });
     if (!out.lessons || typeof out.lessons !== 'object') out.lessons = {};
+    if (!out.positions || typeof out.positions !== 'object') out.positions = {};
     Object.keys(out.lessons).forEach(id => {
       out.lessons[id] = Object.assign(newLessonRecord(), out.lessons[id]);
     });
@@ -1162,21 +1181,39 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
     return R.save.owned.length >= room.unlock.owned;
   }
 
+  // Place réelle d'un objet : celle choisie avec la baguette magique, sinon celle d'origine.
+  function placement(item) {
+    const p = R.save.positions[item.id] || {};
+    return { x: p.x ?? item.x, y: p.y ?? item.y, z: p.z ?? (item.z || 0) };
+  }
+
+  function transformOf(item, x, y) {
+    return `translate(${x} ${y}) scale(${(item.w / item.vb[0]).toFixed(4)})`;
+  }
+
   function placed(item, inner) {
-    const scale = item.w / item.vb[0];
-    return `<g class="item" data-item="${item.id}" transform="translate(${item.x} ${item.y}) scale(${scale.toFixed(4)})"><g class="item-inner">${inner}</g></g>`;
+    const p = placement(item);
+    return `<g class="item" data-item="${item.id}" transform="${transformOf(item, p.x, p.y)}"><g class="item-inner">${inner}</g></g>`;
   }
 
   function visibleItems(roomId) {
     const s = R.save;
     return R.items
       .filter(it => it.room === roomId && s.owned.includes(it.id) && !s.stored.includes(it.id))
-      .sort((a, b) => (a.z || 0) - (b.z || 0));
+      .sort((a, b) => placement(a).z - placement(b).z);
   }
 
+  // Les places du chat liées à un objet (panier, coussin…) suivent cet objet s'il a été déplacé.
   function catSpots(roomId) {
     const s = R.save;
-    return ROOMS[roomId].catSpots.filter(sp => !sp.needs || (s.owned.includes(sp.needs) && !s.stored.includes(sp.needs)));
+    return ROOMS[roomId].catSpots
+      .filter(sp => !sp.needs || (s.owned.includes(sp.needs) && !s.stored.includes(sp.needs)))
+      .map(sp => {
+        const it = sp.needs && R.getItem(sp.needs);
+        if (!it) return sp;
+        const p = placement(it);
+        return Object.assign({}, sp, { x: sp.x + p.x - it.x, y: sp.y + p.y - it.y });
+      });
   }
 
   // Rendu complet d'une pièce. `catSpot` : index dans catSpots(roomId).
@@ -1191,7 +1228,7 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
     let catDone = false;
     const catMarkup = `<g class="scene-cat" transform="translate(${spot.x} ${spot.y}) scale(${(spot.w / 120).toFixed(4)})">${R.cat.catInner(mood || 'normal', R.save.catColor)}</g>`;
     list.forEach(it => {
-      if (!catDone && (it.z || 0) > catZ) { parts.push(catMarkup); catDone = true; }
+      if (!catDone && placement(it).z > catZ) { parts.push(catMarkup); catDone = true; }
       parts.push(placed(it, itemSvg(it)));
     });
     if (!catDone) parts.push(catMarkup);
@@ -1209,7 +1246,7 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
     return item.svg({ stars: R.totalStars(), maxStars: R.maxStars(), trophies: R.save.trophies.length });
   }
 
-  R.house = { ROOMS, isRoomUnlocked, sceneSVG, thumbSVG, catSpots, visibleItems };
+  R.house = { ROOMS, isRoomUnlocked, sceneSVG, thumbSVG, catSpots, visibleItems, placement, transformOf };
 })();
 
 </script>
@@ -2408,6 +2445,21 @@ ReviFun.registerItem({
       <path d="M122 64 l8 -14 l8 14 Z" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
       <rect x="125" y="58" width="10" height="6" fill="#2d3a2e"/>
       <g fill="#ffafcc"><ellipse cx="20" cy="60" rx="4" ry="2.5"/><ellipse cx="140" cy="44" rx="4" ry="2.5"/><ellipse cx="70" cy="66" rx="4" ry="2.5"/></g>`,
+  });
+
+  // Débloque le mode « Déplacer » de la maison (voir js/app.js, bindEditing).
+  ReviFun.registerItem({
+    id: 'baguette', name: 'Baguette magique', desc: 'Pour déplacer tes objets où tu veux, d\'un glisser de doigt ! 🪄',
+    room: 'salon', price: 100, vb: [40, 90], x: 752, y: 286, w: 24, z: 2,
+    requires: { stars: 40 },
+    svg: `
+      <path d="M17 88 L25 30" stroke="#3b2f2f" stroke-width="6" stroke-linecap="round"/>
+      <path d="M18.5 80 L19.5 72" stroke="#f6c443" stroke-width="6"/>
+      <path d="${star(26, 20, 16)}" fill="#f6c443" stroke="#c99a1e" stroke-width="1.5"/>
+      <circle cx="22" cy="16" r="3" fill="#fff8d6"/>
+      <path d="${star(6, 8, 5)}" fill="#ffd6dc"/>
+      <path d="${star(36, 44, 4)}" fill="#bde0fe"/>
+      <path d="${star(4, 38, 3)}" fill="#fff3b0"/>`,
   });
 
   // La surprise : un dragon d'or qui ondule dans le ciel du jardin.
@@ -4366,11 +4418,17 @@ ReviFun.registerExercise({
   let room = 'salon';
   let catSpot = 0;
   let shopRoom = 'salon';
+  let editing = false;    // mode « déplacer les objets » (baguette magique)
+  let selected = null;    // objet sélectionné en mode déplacement
+
+  const WAND = 'baguette';
 
   function render(html) { app.innerHTML = html; }
 
   function go(name) {
     tab = name;
+    editing = false;
+    selected = null;
     document.body.classList.remove('in-lesson');
     document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     ({ house: renderHouse, lessons: renderLessons, shop: renderShop, me: renderMe })[name]();
@@ -4462,6 +4520,25 @@ ReviFun.registerExercise({
     const spots = R.house.catSpots(room);
     if (catSpot >= spots.length) catSpot = 0;
     const rooms = Object.keys(R.house.ROOMS);
+    const hasWand = R.save.owned.includes(WAND);
+    if (!hasWand) editing = false;
+    const sel = selected && R.getItem(selected);
+    const bottom = editing ? `
+      <div class="edit-bar">
+        <div class="edit-help">🪄 <span class="edit-sel">${sel ? `<b>${esc(sel.name)}</b> : fais-le glisser !` : 'Touche un objet, puis fais-le glisser où tu veux.'}</span></div>
+        <div class="edit-actions">
+          <button class="btn small" type="button" data-act="front" ${sel ? '' : 'disabled'}>⬆️ Devant</button>
+          <button class="btn small" type="button" data-act="back" ${sel ? '' : 'disabled'}>⬇️ Derrière</button>
+          <button class="btn small" type="button" data-act="reset" ${sel ? '' : 'disabled'}>↩️ Place d'origine</button>
+          <button class="btn small primary" type="button" data-act="done">✅ Terminé</button>
+        </div>
+      </div>` : `
+      <div class="cat-talk"><b>${esc(R.save.catName)} :</b> <span class="line">${catLine()}</span></div>
+      <div class="house-actions ${hasWand ? 'with-wand' : ''}">
+        <button class="btn primary big" type="button" data-go="lessons">📚 Réviser et gagner des 🐟</button>
+        <button class="btn" type="button" data-go="shop">🛍️ Boutique</button>
+        ${hasWand ? '<button class="btn wand-btn" type="button" data-act="edit">🪄 Déplacer</button>' : ''}
+      </div>`;
     render(`
       ${statsBar()}
       <div class="room-tabs">
@@ -4472,18 +4549,92 @@ ReviFun.registerExercise({
             ${r.emoji} ${esc(r.name)}${open ? '' : ` 🔒 ${R.save.owned.length}/${r.unlock.owned}`}</button>`;
         }).join('')}
       </div>
-      <div class="scene-wrap">${R.house.sceneSVG(room, catSpot)}</div>
-      <div class="cat-talk"><b>${esc(R.save.catName)} :</b> <span class="line">${catLine()}</span></div>
-      <div class="house-actions">
-        <button class="btn primary big" type="button" data-go="lessons">📚 Réviser et gagner des 🐟</button>
-        <button class="btn" type="button" data-go="shop">🛍️ Boutique</button>
-      </div>`);
+      <div class="scene-wrap ${editing ? 'editing' : ''}">${R.house.sceneSVG(room, catSpot)}</div>
+      ${bottom}`);
 
     app.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => {
-      room = b.dataset.room; catSpot = 0; renderHouse();
+      room = b.dataset.room; catSpot = 0; selected = null; renderHouse();
     }));
     app.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
-    bindScene();
+    app.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => editAction(b.dataset.act)));
+    if (editing) bindEditing(); else bindScene();
+  }
+
+  /* ---------- Déplacer les objets (baguette magique) ---------- */
+
+  function setPlacement(id, patch) {
+    const pos = R.save.positions;
+    pos[id] = Object.assign({}, pos[id], patch);
+    R.persist();
+  }
+
+  function editAction(act) {
+    if (act === 'edit') { editing = true; selected = null; R.fx.play('star'); renderHouse(); return; }
+    if (act === 'done') { editing = false; selected = null; R.fx.toast('🪄 Ta maison est rangée !'); renderHouse(); return; }
+    if (!selected) return;
+    // Devant / derrière : on se place juste au-dessus ou en dessous des autres objets de la pièce.
+    const zs = R.house.visibleItems(room).filter(it => it.id !== selected).map(it => R.house.placement(it).z);
+    if (act === 'front') setPlacement(selected, { z: (zs.length ? Math.max(...zs) : 0) + 0.1 });
+    if (act === 'back') setPlacement(selected, { z: (zs.length ? Math.min(...zs) : 0) - 0.1 });
+    if (act === 'reset') { delete R.save.positions[selected]; R.persist(); }
+    R.fx.play('tap');
+    renderHouse();
+  }
+
+  function selectItem(id) {
+    selected = id;
+    app.querySelectorAll('.scene .item').forEach(g => g.classList.toggle('selected', g.dataset.item === id));
+    app.querySelector('.edit-sel').innerHTML = `<b>${esc(R.getItem(id).name)}</b> : fais-le glisser !`;
+    app.querySelectorAll('[data-act]').forEach(b => { b.disabled = false; });
+  }
+
+  // Glisser-déposer à la souris ou au doigt : on convertit la position du pointeur
+  // en coordonnées de la scène (800 × 520), quelle que soit la taille de l'écran.
+  function bindEditing() {
+    const svg = app.querySelector('.scene');
+    const toScene = e => {
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    };
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+    let drag = null;
+    svg.querySelectorAll('.item').forEach(g => {
+      g.classList.toggle('selected', g.dataset.item === selected);
+      g.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        const it = R.getItem(g.dataset.item);
+        selectItem(it.id);
+        const p = R.house.placement(it);
+        const start = toScene(e);
+        drag = { g, it, offX: start.x - p.x, offY: start.y - p.y, x: p.x, y: p.y, moved: false };
+        try { g.setPointerCapture(e.pointerId); } catch (_) { /* pointeur simulé */ }
+        R.fx.play('tap');
+      });
+      g.addEventListener('pointermove', e => {
+        if (!drag || drag.g !== g) return;
+        const { it } = drag;
+        const pt = toScene(e);
+        const h = it.w * it.vb[1] / it.vb[0];
+        // L'objet peut dépasser un peu du bord, mais jamais disparaître.
+        drag.x = Math.round(clamp(pt.x - drag.offX, -it.w * 0.4, 800 - it.w * 0.6));
+        drag.y = Math.round(clamp(pt.y - drag.offY, -h * 0.4, 520 - h * 0.6));
+        drag.moved = true;
+        g.setAttribute('transform', R.house.transformOf(it, drag.x, drag.y));
+      });
+      const end = () => {
+        if (!drag || drag.g !== g) return;
+        const d = drag;
+        drag = null;
+        if (d.moved) {
+          setPlacement(d.it.id, { x: d.x, y: d.y });
+          renderHouse();
+        }
+      };
+      g.addEventListener('pointerup', end);
+      g.addEventListener('pointercancel', end);
+    });
   }
 
   function bindScene() {
