@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<!-- Mochi & les Mots — build 2026-11-19 08:38:55 -->
+<!-- Mochi & les Mots — build 2026-11-19 09:13:14 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#fbf3e4">
@@ -4399,6 +4399,414 @@ ReviFun.registerExercise({
         { t: 'Il ___ perdu.', b: 1 },
       ],
       explain: 'cela est → c\'est. Un verbe en « se » → s\'est.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/40-pc-1er-groupe.js */
+ReviFun.registerExercise({
+  id: 'pc-1er-groupe',
+  chapter: 'Le temple du passé',
+  order: 400,
+  title: 'Passé composé : verbes en -er',
+  subtitle: 'Temple du passé · 1er groupe',
+  emoji: '🏯',
+  color: '#b45309',
+  sheet: {
+    intro: 'Bienvenue au <b>temple du passé</b> ! Première salle : le <b>passé composé</b>, le temps qu\'on utilise tous les jours pour raconter ce qu\'on a fait.',
+    cards: [
+      {
+        emoji: '🧱',
+        title: 'Deux morceaux : auxiliaire + participe passé',
+        html: `<div class="big-rule">avoir ou être (au présent) + participe en <span class="hl">-é</span></div>
+          <ul>
+            <li>J'<b>ai</b> mang<span class="hl">é</span>. Nous <b>avons</b> jou<span class="hl">é</span>.</li>
+            <li>Elle <b>est</b> tomb<span class="hl">ée</span>. Ils <b>sont</b> arriv<span class="hl">és</span>.</li>
+          </ul>`,
+      },
+      {
+        emoji: '🚶',
+        title: 'Avec être : les verbes de mouvement',
+        html: `<p>aller, arriver, entrer, rentrer, rester, tomber, monter, passer, retourner… se conjuguent avec <b>être</b>.</p>
+          <p>Avec <b>être</b>, le participe <b>s'accorde avec le sujet</b> : <i>Léa est arriv<span class="hl">ée</span>. Mes cousins sont rest<span class="hl">és</span>.</i></p>
+          <p>Avec <b>avoir</b>, il ne s'accorde pas avec le sujet : <i>Elle a chant<span class="hl">é</span>.</i></p>`,
+      },
+    ],
+    trick: `Pour savoir si c'est <b>-é</b> ou <b>-er</b>, remplace par « vendu » : <i>j'ai vend<b>u</b></i> → <b>j'ai mangé</b>. Et avec <b>être</b>, je regarde toujours qui est le sujet pour accorder 👀.`,
+  },
+  questions: [
+    { type: 'choice', text: 'Hier, j\'___ un gâteau.', options: ['ai mangé', 'ai manger', 'suis mangé'], answer: 'ai mangé', explain: 'Avoir + participe en -é (j\'ai vendu → j\'ai mangé).' },
+    { type: 'choice', text: 'Nous ___ au cinéma.', options: ['sommes allés', 'avons allé', 'sommes allé'], answer: 'sommes allés', explain: 'Aller se conjugue avec être ; nous = pluriel → allés.' },
+    { type: 'choice', text: 'Elle ___ dans l\'escalier.', options: ['est tombée', 'a tombé', 'est tombé'], answer: 'est tombée', explain: 'Tomber → être ; elle = féminin → tombée.' },
+    { type: 'choice', text: 'Les enfants ___ toute la journée.', options: ['ont joué', 'sont joué', 'ont jouer'], answer: 'ont joué', explain: 'Jouer se conjugue avec avoir : ils ont joué.' },
+    { type: 'choice', prompt: 'Avec l\'auxiliaire être, le participe passé…', options: ['s\'accorde avec le sujet', 'ne change jamais', 'prend toujours un s'], answer: 's\'accorde avec le sujet', explain: 'Elle est tombée, ils sont tombés.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Tu ___ (regarder) le film.', answers: ['as regardé'], explain: 'Tu as + regardé.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Ils ___ (chanter) une chanson.', answers: ['ont chanté'], explain: 'Ils ont + chanté.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Léa ___ (arriver) en retard.', answers: ['est arrivée'], explain: 'Arriver → être ; Léa = féminin → arrivée.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Mes cousins ___ (rester) chez nous.', answers: ['sont restés'], explain: 'Rester → être ; cousins = masculin pluriel → restés.' },
+    { type: 'errors', text: 'Hier, nous [avons allé|sommes allés] à la plage et nous avons [nager|nagé].', explain: 'aller → nous sommes allés ; nous avons nagé (participe en -é).' },
+    { type: 'errors', text: 'Ma sœur [a arrivé|est arrivée] puis elle a [rangée|rangé] sa chambre.', explain: 'arriver → être + accord ; avec avoir, pas d\'accord avec le sujet : rangé.' },
+    {
+      type: 'sort',
+      prompt: 'Quel auxiliaire au passé composé ?',
+      buckets: ['avec avoir', 'avec être'],
+      items: [
+        { t: 'manger', b: 0 },
+        { t: 'aller', b: 1 },
+        { t: 'jouer', b: 0 },
+        { t: 'arriver', b: 1 },
+        { t: 'regarder', b: 0 },
+        { t: 'tomber', b: 1 },
+      ],
+      explain: 'Les verbes de mouvement (aller, arriver, tomber…) prennent être.',
+    },
+    {
+      type: 'match',
+      prompt: 'Relie chaque sujet à la bonne forme',
+      pairs: [['Tu', 'as joué'], ['Il', 'a joué'], ['Nous', 'avons joué'], ['Vous', 'avez joué'], ['Elles', 'ont joué']],
+      explain: 'L\'auxiliaire avoir change avec le sujet ; le participe « joué » ne bouge pas.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/41-pc-2e-groupe.js */
+ReviFun.registerExercise({
+  id: 'pc-2e-groupe',
+  chapter: 'Le temple du passé',
+  order: 410,
+  title: 'Passé composé : verbes en -ir',
+  subtitle: 'Temple du passé · 2e groupe',
+  emoji: '🎋',
+  color: '#15803d',
+  sheet: {
+    intro: 'Deuxième salle du temple : les verbes comme <b>finir</b>. Leur participe passé est tout simple… mais il cache un piège !',
+    cards: [
+      {
+        emoji: '🧱',
+        title: 'Le participe passé en -i',
+        html: `<div class="big-rule">avoir + participe en <span class="hl">-i</span></div>
+          <ul>
+            <li>J'ai fin<span class="hl">i</span>. Tu as chois<span class="hl">i</span>. Ils ont grand<span class="hl">i</span>.</li>
+            <li>Même famille : bondir, obéir, réussir, rougir, applaudir, jaunir, mûrir…</li>
+          </ul>`,
+      },
+      {
+        emoji: '⚠️',
+        title: 'Le piège : pas de t, pas de s',
+        html: `<ul>
+            <li class="ok-ex">J'ai <b>fini</b> mon dessin.</li>
+            <li class="ko-ex">J'ai finit mon dessin.</li>
+          </ul>
+          <p><i>Il finit</i>, <i>tu finis</i> : ça, c'est le <b>présent</b>. Après « ai, as, a, avons, avez, ont », on écrit juste <span class="hl">-i</span>.</p>`,
+      },
+    ],
+    trick: `Mets le participe au féminin : « une histoire fini<b>e</b> » → on n'entend aucune lettre en plus, donc pas de t ni de s : <b>fini</b> ✨.`,
+  },
+  questions: [
+    { type: 'choice', text: 'J\'ai ___ mes devoirs.', options: ['fini', 'finit', 'finis'], answer: 'fini', explain: 'Après « ai », participe passé : fini.' },
+    { type: 'choice', text: 'Ils ont ___ le bon chemin.', options: ['choisi', 'choisit', 'choisir'], answer: 'choisi', explain: 'Participe passé de choisir : choisi.' },
+    { type: 'choice', text: 'Tu as beaucoup ___ cette année !', options: ['grandi', 'grandit', 'grandu'], answer: 'grandi', explain: 'Participe passé de grandir : grandi.' },
+    { type: 'choice', text: 'Elle a ___ son examen.', options: ['réussi', 'réussit', 'réussie'], answer: 'réussi', explain: 'Avec avoir, pas d\'accord avec le sujet : réussi.' },
+    { type: 'choice', prompt: 'Le participe passé de « finir » s\'écrit…', options: ['fini', 'finit', 'finis'], answer: 'fini', explain: 'Une histoire finie → pas de lettre muette : fini.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Nous ___ (applaudir) les artistes.', answers: ['avons applaudi'], explain: 'Nous avons + applaudi.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Le chat ___ (bondir) sur la souris.', answers: ['a bondi'], explain: 'Il a + bondi.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Vous ___ (obéir) à la maîtresse.', answers: ['avez obéi'], explain: 'Vous avez + obéi.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Les feuilles ___ (jaunir) en automne.', answers: ['ont jauni'], explain: 'Elles ont + jauni.' },
+    { type: 'errors', text: 'Les fleurs ont [fleurit|fleuri] et les pommes ont [mûrie|mûri].', explain: 'Avec avoir : fleuri, mûri (ni t, ni accord).' },
+    { type: 'errors', text: 'J\'ai [finit|fini] mon dessin et j\'ai [choisis|choisi] les couleurs.', explain: 'Participes passés : fini, choisi.' },
+    {
+      type: 'sort',
+      prompt: 'Présent ou passé composé ?',
+      buckets: ['Présent', 'Passé composé'],
+      items: [
+        { t: 'il finit', b: 0 },
+        { t: 'il a fini', b: 1 },
+        { t: 'tu choisis', b: 0 },
+        { t: 'tu as choisi', b: 1 },
+        { t: 'elle rougit', b: 0 },
+        { t: 'elle a rougi', b: 1 },
+      ],
+      explain: 'Passé composé = auxiliaire + participe en -i.',
+    },
+    {
+      type: 'match',
+      prompt: 'Relie chaque infinitif à son participe passé',
+      pairs: [['finir', 'fini'], ['grandir', 'grandi'], ['choisir', 'choisi'], ['rougir', 'rougi']],
+      explain: 'Verbes en -ir (2e groupe) → participe en -i.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/42-pc-3e-groupe.js */
+ReviFun.registerExercise({
+  id: 'pc-3e-groupe',
+  chapter: 'Le temple du passé',
+  order: 420,
+  title: 'Passé composé : 3e groupe',
+  subtitle: 'Temple du passé · pris, fait, vu, venu…',
+  emoji: '🗝️',
+  color: '#7c2d12',
+  sheet: {
+    intro: 'Troisième salle : les verbes rebelles du <b>3e groupe</b>. Leurs participes passés ne suivent aucune règle… il faut les connaître par cœur !',
+    cards: [
+      {
+        emoji: '📋',
+        title: 'Les participes à connaître',
+        html: `<div class="table-wrap"><table>
+          <tr><th>infinitif</th><th>participe</th><th>infinitif</th><th>participe</th></tr>
+          <tr><td>faire</td><td><span class="hl">fait</span></td><td>voir</td><td><span class="hl">vu</span></td></tr>
+          <tr><td>dire</td><td><span class="hl">dit</span></td><td>lire</td><td><span class="hl">lu</span></td></tr>
+          <tr><td>prendre</td><td><span class="hl">pris</span></td><td>boire</td><td><span class="hl">bu</span></td></tr>
+          <tr><td>mettre</td><td><span class="hl">mis</span></td><td>pouvoir</td><td><span class="hl">pu</span></td></tr>
+          <tr><td>écrire</td><td><span class="hl">écrit</span></td><td>vouloir</td><td><span class="hl">voulu</span></td></tr>
+          <tr><td>ouvrir</td><td><span class="hl">ouvert</span></td><td>rire</td><td><span class="hl">ri</span></td></tr>
+          <tr><td>avoir</td><td><span class="hl">eu</span></td><td>être</td><td><span class="hl">été</span></td></tr>
+        </table></div>`,
+      },
+      {
+        emoji: '🚶',
+        title: 'Avec être : venir, partir, sortir…',
+        html: `<p>Elle est <span class="hl">venue</span>. Ils sont <span class="hl">partis</span>. Nous sommes <span class="hl">sortis</span>. <small>(accord avec le sujet)</small></p>`,
+      },
+    ],
+    trick: `Pour trouver la lettre muette, je mets le participe au <b>féminin</b> : pri<b>s</b>e → <b>pris</b>, fai<b>t</b>e → <b>fait</b>, mi<b>s</b>e → <b>mis</b>, écri<b>t</b>e → <b>écrit</b>. Le féminin me souffle la réponse 🤫.`,
+  },
+  questions: [
+    { type: 'choice', text: 'J\'ai ___ mon goûter.', options: ['pris', 'prit', 'prendu'], answer: 'pris', explain: 'Une chose prise → pris (avec s).' },
+    { type: 'choice', text: 'Nous avons ___ un château de sable.', options: ['fait', 'fais', 'faisé'], answer: 'fait', explain: 'Une chose faite → fait (avec t).' },
+    { type: 'choice', text: 'Ils ont ___ un dragon !', options: ['vu', 'vus', 'voyé'], answer: 'vu', explain: 'Participe passé de voir : vu (pas d\'accord avec avoir).' },
+    { type: 'choice', text: 'Elle est ___ chez sa grand-mère.', options: ['venue', 'venu', 'venut'], answer: 'venue', explain: 'Venir → être ; elle = féminin → venue.' },
+    { type: 'choice', prompt: 'Pour trouver la lettre muette de « pris », je mets le participe…', options: ['au féminin (prise)', 'au pluriel', 'au futur'], answer: 'au féminin (prise)', explain: 'prise → on entend le s → pris.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Tu ___ (lire) ce livre ?', answers: ['as lu'], explain: 'Tu as + lu.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Le chat ___ (boire) tout son lait.', answers: ['a bu'], explain: 'Il a + bu.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Mes parents ___ (partir) en vacances.', answers: ['sont partis'], explain: 'Partir → être ; parents = masculin pluriel → partis.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Vous ___ (écrire) une lettre.', answers: ['avez écrit'], explain: 'Une lettre écrite → écrit (avec t).' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'J\'___ (avoir) de la chance.', answers: ['ai eu'], explain: 'Avoir → participe eu : j\'ai eu.' },
+    { type: 'fill', prompt: 'Conjugue au passé composé', text: 'Elle ___ (être) malade.', answers: ['a été'], explain: 'Être → participe été, avec l\'auxiliaire avoir : elle a été.' },
+    { type: 'errors', text: 'Il a [prit|pris] son vélo et il a [mit|mis] son casque.', explain: 'prise → pris ; mise → mis.' },
+    { type: 'errors', text: 'Nous avons [vus|vu] un film et nous avons [rit|ri].', explain: 'Avec avoir, pas d\'accord : vu ; rire → ri.' },
+    {
+      type: 'match',
+      prompt: 'Relie chaque infinitif à son participe passé',
+      pairs: [['faire', 'fait'], ['dire', 'dit'], ['mettre', 'mis'], ['voir', 'vu'], ['ouvrir', 'ouvert'], ['pouvoir', 'pu']],
+      explain: 'Les participes du 3e groupe s\'apprennent par cœur.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/43-imp-1er-2e-groupe.js */
+ReviFun.registerExercise({
+  id: 'imp-1er-2e-groupe',
+  chapter: 'Le temple du passé',
+  order: 430,
+  title: 'Imparfait : verbes en -er et -ir',
+  subtitle: 'Temple du passé · 1er et 2e groupes',
+  emoji: '🏮',
+  color: '#be123c',
+  sheet: {
+    intro: 'Quatrième salle : l\'<b>imparfait</b>, le temps des souvenirs et des habitudes. Bonne nouvelle : ses terminaisons sont les mêmes pour tous les verbes !',
+    cards: [
+      {
+        emoji: '📋',
+        title: 'Les terminaisons',
+        html: `<div class="table-wrap"><table>
+          <tr><th></th><th>terminaison</th><th>chanter</th><th>finir</th></tr>
+          <tr><td>je</td><td><span class="hl">-ais</span></td><td>chantais</td><td>finissais</td></tr>
+          <tr><td>tu</td><td><span class="hl">-ais</span></td><td>chantais</td><td>finissais</td></tr>
+          <tr><td>il, elle</td><td><span class="hl">-ait</span></td><td>chantait</td><td>finissait</td></tr>
+          <tr><td>nous</td><td><span class="hl">-ions</span></td><td>chantions</td><td>finissions</td></tr>
+          <tr><td>vous</td><td><span class="hl">-iez</span></td><td>chantiez</td><td>finissiez</td></tr>
+          <tr><td>ils, elles</td><td><span class="hl">-aient</span></td><td>chantaient</td><td>finissaient</td></tr>
+        </table></div>
+        <p>Les verbes en -ir du 2e groupe gardent leur <span class="hl">-iss-</span> : je fin<b>iss</b>ais.</p>`,
+      },
+      {
+        emoji: '⚠️',
+        title: 'Les petits pièges des verbes en -er',
+        html: `<ul>
+            <li>-cer : je commen<span class="hl">ç</span>ais, mais nous commen<b>c</b>ions</li>
+            <li>-ger : je mang<span class="hl">e</span>ais, mais nous mang<b>i</b>ons</li>
+            <li>-ier : nous cri<span class="hl">ii</span>ons, vous étudi<span class="hl">ii</span>ez (deux i !)</li>
+          </ul>`,
+      },
+    ],
+    trick: `Pour <b>nous crions</b> (présent) et <b>nous criions</b> (imparfait), je compte les i : le passé en a un de plus, comme un souvenir en plus dans ma tête 🧠.`,
+  },
+  questions: [
+    { type: 'choice', text: 'Chaque soir, je ___ une chanson.', options: ['chantais', 'chantait', 'chantai'], answer: 'chantais', explain: 'Je → -ais.' },
+    { type: 'choice', text: 'Les oiseaux ___ dans les arbres.', options: ['chantaient', 'chantait', 'chantais'], answer: 'chantaient', explain: 'Ils → -aient.' },
+    { type: 'choice', text: 'Autrefois, nous ___ à la cantine.', options: ['mangions', 'mangeions', 'mangeons'], answer: 'mangions', explain: 'Devant i, pas besoin du e : nous mangions.' },
+    { type: 'choice', text: 'Il ___ toujours ses devoirs avant de jouer.', options: ['finissait', 'finitait', 'finait'], answer: 'finissait', explain: 'Finir garde -iss- : il finissait.' },
+    { type: 'choice', prompt: 'Avec « nous », le verbe « crier » à l\'imparfait s\'écrit…', options: ['criions', 'crions', 'criyons'], answer: 'criions', explain: 'cri + ions → deux i.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Je ___ (commencer) à m\'endormir.', answers: ['commençais'], explain: 'Cédille devant a : commençais.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Vous ___ (choisir) toujours le même gâteau.', answers: ['choisissiez'], explain: 'Choisir garde -iss- : vous choisissiez.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Nous ___ (crier) de joie.', answers: ['criions'], explain: 'Nous criions : deux i.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Tu ___ (nager) très vite.', answers: ['nageais'], explain: 'On garde le e devant a : nageais.' },
+    { type: 'errors', text: 'Les enfants [jouait|jouaient] dehors et ils [grandissait|grandissaient] vite.', explain: 'Ils → -aient : jouaient, grandissaient.' },
+    { type: 'errors', text: 'Je [mangais|mangeais] des pommes et je [lancais|lançais] les trognons.', explain: 'mangeais (e devant a) ; lançais (ç devant a).' },
+    {
+      type: 'sort',
+      prompt: 'Verbe en -er ou verbe en -ir ?',
+      buckets: ['1er groupe (-er)', '2e groupe (-ir)'],
+      items: [
+        { t: 'il dansait', b: 0 },
+        { t: 'il bondissait', b: 1 },
+        { t: 'nous rougissions', b: 1 },
+        { t: 'nous parlions', b: 0 },
+        { t: 'elles réussissaient', b: 1 },
+        { t: 'elles marchaient', b: 0 },
+      ],
+      explain: 'Le 2e groupe se reconnaît à son -iss-.',
+    },
+    {
+      type: 'match',
+      prompt: 'Relie chaque sujet au bon verbe',
+      pairs: [['Il', 'obéissait'], ['Nous', 'obéissions'], ['Vous', 'obéissiez'], ['Ils', 'obéissaient']],
+      explain: '-ait, -ions, -iez, -aient.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/44-imp-3e-groupe.js */
+ReviFun.registerExercise({
+  id: 'imp-3e-groupe',
+  chapter: 'Le temple du passé',
+  order: 440,
+  title: 'Imparfait : 3e groupe',
+  subtitle: 'Temple du passé · faisais, prenais, voyais…',
+  emoji: '🔮',
+  color: '#4338ca',
+  sheet: {
+    intro: 'Cinquième salle : l\'imparfait des verbes du <b>3e groupe</b>. Ils ont l\'air compliqués… mais j\'ai une clé magique pour les ouvrir tous !',
+    cards: [
+      {
+        emoji: '🗝️',
+        title: 'La clé : « nous » au présent',
+        html: `<p>On prend le verbe avec <b>nous</b> au présent, on enlève <b>-ons</b>, et on ajoute les terminaisons de l'imparfait.</p>
+          <div class="table-wrap"><table>
+            <tr><th>infinitif</th><th>nous (présent)</th><th>imparfait</th></tr>
+            <tr><td>faire</td><td>nous <b>fais</b>ons</td><td>je <span class="hl">faisais</span></td></tr>
+            <tr><td>prendre</td><td>nous <b>pren</b>ons</td><td>je <span class="hl">prenais</span></td></tr>
+            <tr><td>voir</td><td>nous <b>voy</b>ons</td><td>je <span class="hl">voyais</span></td></tr>
+            <tr><td>boire</td><td>nous <b>buv</b>ons</td><td>je <span class="hl">buvais</span></td></tr>
+            <tr><td>dire</td><td>nous <b>dis</b>ons</td><td>je <span class="hl">disais</span></td></tr>
+            <tr><td>lire</td><td>nous <b>lis</b>ons</td><td>je <span class="hl">lisais</span></td></tr>
+          </table></div>`,
+      },
+      {
+        emoji: '⭐',
+        title: 'Une seule exception : être',
+        html: `<p>j'<span class="hl">étais</span>, tu étais, il était, nous étions, vous étiez, ils étaient.</p>
+          <p>Attention avec voir : nous <span class="hl">voyions</span> (y + ions).</p>`,
+      },
+    ],
+    trick: `Je cherche toujours la forme avec <b>nous</b> : « nous <b>fais</b>ons » → je <b>fais</b>ais (et pas « fesais » !). La clé ouvre toutes les portes 🗝️.`,
+  },
+  questions: [
+    { type: 'choice', text: 'Avant, je ___ beaucoup de dessins.', options: ['faisais', 'fesais', 'faisait'], answer: 'faisais', explain: 'Nous faisons → je faisais.' },
+    { type: 'choice', text: 'Mon grand-père ___ le journal chaque matin.', options: ['lisait', 'lisais', 'lirait'], answer: 'lisait', explain: 'Nous lisons → il lisait.' },
+    { type: 'choice', text: 'Les chats ___ du lait.', options: ['buvaient', 'boivaient', 'buvait'], answer: 'buvaient', explain: 'Nous buvons → ils buvaient.' },
+    { type: 'choice', text: 'Nous ___ la mer depuis la fenêtre.', options: ['voyions', 'voyons', 'voiions'], answer: 'voyions', explain: 'Nous voyons → nous voyions (y + ions).' },
+    { type: 'choice', prompt: 'Pour trouver l\'imparfait d\'un verbe du 3e groupe, je pars de…', options: ['« nous » au présent', 'l\'infinitif', 'le passé simple'], answer: '« nous » au présent', explain: 'Nous prenons → je prenais.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Tu ___ (prendre) le bus tous les jours.', answers: ['prenais'], explain: 'Nous prenons → tu prenais.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Elles ___ (dire) toujours la vérité.', answers: ['disaient'], explain: 'Nous disons → elles disaient.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Je ___ (venir) souvent ici.', answers: ['venais'], explain: 'Nous venons → je venais.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'Vous ___ (pouvoir) jouer dehors.', answers: ['pouviez'], explain: 'Nous pouvons → vous pouviez.' },
+    { type: 'fill', prompt: 'Conjugue à l\'imparfait', text: 'J\'___ (être) très content.', answers: ['étais'], explain: 'Être est l\'exception : j\'étais.' },
+    { type: 'errors', text: 'Autrefois, on [fesait|faisait] du feu et on [prenai|prenait] l\'eau au puits.', explain: 'Nous faisons → faisait ; nous prenons → prenait.' },
+    { type: 'errors', text: 'Les enfants [voyait|voyaient] la neige et ils [voulais|voulaient] sortir.', explain: 'Ils → -aient : voyaient, voulaient.' },
+    {
+      type: 'match',
+      prompt: 'Relie chaque infinitif à son imparfait',
+      pairs: [['faire', 'je faisais'], ['prendre', 'je prenais'], ['boire', 'je buvais'], ['voir', 'je voyais'], ['dire', 'je disais']],
+      explain: 'Toujours à partir de « nous » au présent.',
+    },
+    {
+      type: 'sort',
+      prompt: 'Présent ou imparfait ?',
+      buckets: ['Présent', 'Imparfait'],
+      items: [
+        { t: 'nous faisons', b: 0 },
+        { t: 'nous faisions', b: 1 },
+        { t: 'je bois', b: 0 },
+        { t: 'je buvais', b: 1 },
+        { t: 'il voit', b: 0 },
+        { t: 'il voyait', b: 1 },
+      ],
+      explain: 'Imparfait : -ais, -ait, -ions, -iez, -aient.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/45-pc-ou-imparfait.js */
+ReviFun.registerExercise({
+  id: 'pc-ou-imparfait',
+  chapter: 'Le temple du passé',
+  order: 450,
+  title: 'Passé composé ou imparfait ?',
+  subtitle: 'Temple du passé · la salle du trésor',
+  emoji: '💎',
+  color: '#0f766e',
+  sheet: {
+    intro: 'Dernière salle, celle du <b>trésor</b> : savoir choisir entre le passé composé et l\'imparfait quand on raconte une histoire.',
+    cards: [
+      {
+        emoji: '🏞️',
+        title: 'L\'imparfait : le décor et les habitudes',
+        html: `<ul>
+            <li>Il <span class="hl">faisait</span> beau, la mer <span class="hl">était</span> calme. <small>(décor)</small></li>
+            <li>Chaque été, nous <span class="hl">allions</span> à la plage. <small>(habitude)</small></li>
+          </ul>`,
+      },
+      {
+        emoji: '⚡',
+        title: 'Le passé composé : une action précise, terminée',
+        html: `<ul>
+            <li>Hier, j'<span class="hl">ai perdu</span> mon stylo.</li>
+            <li>Soudain, le chat <span class="hl">a sauté</span> sur la table.</li>
+          </ul>`,
+      },
+      {
+        emoji: '🎞️',
+        title: 'Les deux ensemble',
+        html: `<div class="big-rule">Je <span class="hl">dormais</span> (décor) quand le téléphone <span class="hl">a sonné</span> (action).</div>
+          <p>Mots-indices : <b>autrefois, chaque jour, souvent</b> → imparfait. <b>Hier, soudain, ce matin, un jour</b> → passé composé.</p>`,
+      },
+    ],
+    trick: `Pense à une photo et à une vidéo 📸🎬 : la <b>photo</b> (ce qui était là, ce qui durait), c'est l'imparfait. Le petit bout de <b>vidéo</b> où quelque chose se passe d'un coup, c'est le passé composé !`,
+  },
+  questions: [
+    { type: 'choice', text: 'Je dormais quand le téléphone ___.', options: ['a sonné', 'sonnait'], answer: 'a sonné', explain: 'Je dormais (décor) ; le téléphone a sonné (action précise).' },
+    { type: 'choice', text: 'Quand j\'étais petit, j\'___ peur du noir.', options: ['avais', 'ai eu'], answer: 'avais', explain: 'Une situation qui durait → imparfait.' },
+    { type: 'choice', text: 'Hier, nous ___ une tarte aux pommes.', options: ['avons fait', 'faisions'], answer: 'avons fait', explain: '« Hier » : une action précise et terminée → passé composé.' },
+    { type: 'choice', text: 'Tous les étés, nous ___ en Bretagne.', options: ['allions', 'sommes allés'], answer: 'allions', explain: '« Tous les étés » : une habitude → imparfait.' },
+    { type: 'choice', text: 'La princesse ___ triste. Un jour, un chevalier ___.', options: ['était / est arrivé', 'a été / arrivait', 'était / arrivait'], answer: 'était / est arrivé', explain: 'Décor (était) puis action (est arrivé).' },
+    { type: 'choice', prompt: 'Quel mot annonce souvent l\'imparfait ?', options: ['autrefois', 'soudain', 'hier'], answer: 'autrefois', explain: '« Autrefois » parle d\'habitudes du passé.' },
+    { type: 'fill', prompt: 'Écris le verbe au bon temps', text: 'Il ___ (pleuvoir) quand nous sommes sortis.', answers: ['pleuvait'], explain: 'La pluie qui durait → imparfait.' },
+    { type: 'fill', prompt: 'Écris le verbe au bon temps', text: 'Ce matin, j\'___ (perdre) mon stylo.', answers: ['ai perdu'], explain: '« Ce matin », une action précise → passé composé.' },
+    { type: 'fill', prompt: 'Écris le verbe au bon temps', text: 'Autrefois, les gens ___ (écrire) avec une plume.', answers: ['écrivaient'], explain: '« Autrefois » → imparfait (nous écrivons → ils écrivaient).' },
+    { type: 'fill', prompt: 'Écris le verbe au bon temps', text: 'Soudain, le chat ___ (sauter) sur la table.', answers: ['a sauté'], explain: '« Soudain » → passé composé.' },
+    { type: 'errors', text: 'Il [a fait|faisait] beau et les oiseaux chantaient quand soudain un orage [éclatait|a éclaté].', explain: 'Le décor → faisait ; l\'action soudaine → a éclaté.' },
+    { type: 'errors', text: 'Chaque matin, Léo [a pris|prenait] le bus, mais hier il [venait|est venu] à pied.', explain: 'Une habitude → prenait ; une fois précise, hier → est venu.' },
+    {
+      type: 'sort',
+      prompt: 'Imparfait ou passé composé ?',
+      buckets: ['Imparfait', 'Passé composé'],
+      items: [
+        { t: 'il faisait nuit', b: 0 },
+        { t: 'soudain, il a crié', b: 1 },
+        { t: 'chaque jour, je lisais', b: 0 },
+        { t: 'hier, j\'ai lu', b: 1 },
+        { t: 'la mer était calme', b: 0 },
+        { t: 'ce matin, elle est partie', b: 1 },
+      ],
+      explain: 'Décor et habitudes → imparfait. Action précise → passé composé.',
     },
   ],
 });
