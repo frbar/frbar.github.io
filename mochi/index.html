@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<!-- Mochi & les Mots — build 2026-11-15 21:40:59 -->
+<!-- Mochi & les Mots — build 2026-11-19 08:28:29 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#fbf3e4">
@@ -160,6 +160,8 @@ button:disabled { cursor: default; }
 .scene .item.wiggle .item-inner { animation: wiggle .5s; }
 .scene .item.pop-in .item-inner { animation: popIn .7s cubic-bezier(.3, 1.6, .5, 1); }
 
+.scene .ryu, .thumb .ryu { transform-box: fill-box; transform-origin: center; animation: ryu 5s ease-in-out infinite; }
+@keyframes ryu { 0%, 100% { transform: translate(0, 0) rotate(0); } 50% { transform: translate(-10px, -8px) rotate(-1.5deg); } }
 .cat-tail { transform-box: fill-box; transform-origin: 0% 100%; animation: tail 2.6s ease-in-out infinite; }
 .cat-eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.5s infinite; }
 .scene-cat { transition: transform .35s; }
@@ -673,6 +675,7 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
       });
     });
     save.streak = { last: today(), days: 4, best: 4 };
+    save.trophies = ['first', 'perfect', 'combo5', 'explorer', 'decorator', 'streak3', 'garden'];
   }
 
   function persist() {
@@ -1189,7 +1192,7 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
     const catMarkup = `<g class="scene-cat" transform="translate(${spot.x} ${spot.y}) scale(${(spot.w / 120).toFixed(4)})">${R.cat.catInner(mood || 'normal', R.save.catColor)}</g>`;
     list.forEach(it => {
       if (!catDone && (it.z || 0) > catZ) { parts.push(catMarkup); catDone = true; }
-      parts.push(placed(it, it.svg));
+      parts.push(placed(it, itemSvg(it)));
     });
     if (!catDone) parts.push(catMarkup);
     return `<svg class="scene" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${R.esc(room.name)}">${parts.join('')}</svg>`;
@@ -1197,7 +1200,13 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
 
   function thumbSVG(item) {
     const pad = Math.max(item.vb[0], item.vb[1]) * 0.06;
-    return `<svg class="thumb" viewBox="${-pad} ${-pad} ${item.vb[0] + pad * 2} ${item.vb[1] + pad * 2}" aria-hidden="true">${item.svg}</svg>`;
+    return `<svg class="thumb" viewBox="${-pad} ${-pad} ${item.vb[0] + pad * 2} ${item.vb[1] + pad * 2}" aria-hidden="true">${itemSvg(item)}</svg>`;
+  }
+
+  // Un objet peut dessiner selon la progression : svg est alors une fonction (ctx) → chaîne SVG.
+  function itemSvg(item) {
+    if (typeof item.svg !== 'function') return item.svg;
+    return item.svg({ stars: R.totalStars(), maxStars: R.maxStars(), trophies: R.save.trophies.length });
   }
 
   R.house = { ROOMS, isRoomUnlocked, sceneSVG, thumbSVG, catSpots, visibleItems };
@@ -1936,6 +1945,8 @@ textarea { font-family: ui-monospace, monospace; font-size: .75em; resize: verti
  * et largeur dans la scène 800 × 520, z : ordre d'empilement (0 = sol, 1 = mur,
  * 2-5 = meubles, 6+ = devant / suspendu), requires (optionnel) : { item, stars }.
  * Le chat est dessiné à z = 4.5.
+ * svg peut aussi être une fonction ({ stars, maxStars, trophies }) → chaîne SVG,
+ * pour un objet qui montre la progression (voir l'étagère à trophées).
  */
 
 /* ======================= SALON ======================= */
@@ -2311,6 +2322,142 @@ ReviFun.registerItem({
     <circle cx="33" cy="24" r="4" fill="#fff6c2" opacity=".8"/>
     <path d="M6 10 l3 -6 l3 6 l-3 6 Z M70 50 l2 -4 l2 4 l-2 4 Z" fill="#fff3b0"/>`,
 });
+
+/* ======================= AJOUTS (île des mots sosies) ======================= */
+
+(function () {
+  // Étoile à 5 branches centrée en (cx, cy).
+  function star(cx, cy, r) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5;
+      const rr = i % 2 ? r * 0.45 : r;
+      pts.push(`${(cx + rr * Math.cos(a)).toFixed(1)},${(cy + rr * Math.sin(a)).toFixed(1)}`);
+    }
+    return `M${pts.join(' L')} Z`;
+  }
+
+  // Point et tangente sur une courbe de Bézier cubique.
+  function bezier([p0, p1, p2, p3], t) {
+    const u = 1 - t;
+    const pt = k => u * u * u * p0[k] + 3 * u * u * t * p1[k] + 3 * u * t * t * p2[k] + t * t * t * p3[k];
+    const d = k => 3 * u * u * (p1[k] - p0[k]) + 6 * u * t * (p2[k] - p1[k]) + 3 * t * t * (p3[k] - p2[k]);
+    const len = Math.hypot(d(0), d(1)) || 1;
+    return { x: pt(0), y: pt(1), tx: d(0) / len, ty: d(1) / len };
+  }
+
+  ReviFun.registerItem({
+    id: 'manga-chats', name: 'Manga « Neko Ninja »', desc: 'Les aventures d\'un chat ninja. Mochi l\'a lu 12 fois.',
+    room: 'salon', price: 45, vb: [70, 46], x: 402, y: 333, w: 54, z: 4,
+    requires: { item: 'chabudai' },
+    svg: `
+      <path d="M4 40 L10 4 L62 8 L58 44 Z" fill="#f1faee"/>
+      <path d="M6 38 L11 6 L60 10 L56 42 Z" fill="#1d3557"/>
+      <path d="M14 12 L56 15 L55 22 L13 19 Z" fill="#e63946"/>
+      <g stroke="#fff" stroke-width="1.6"><line x1="18" y1="16" x2="30" y2="17"/><line x1="34" y1="17" x2="50" y2="18"/></g>
+      <circle cx="34" cy="32" r="8" fill="#f4a261"/>
+      <path d="M27 27 L28 20 L32 25 Z M41 27 L40 20 L36 25 Z" fill="#f4a261"/>
+      <path d="M26 30 h16" stroke="#2b2b2b" stroke-width="3.5"/>
+      <circle cx="31" cy="30" r="1.2" fill="#fff"/><circle cx="37" cy="30" r="1.2" fill="#fff"/>
+      <path d="M42 30 l8 -3 l-2 5 Z" fill="#2b2b2b"/>
+      <path d="M49 36 l3 -3 l3 3 l-3 3 Z" fill="#f6c443"/>`,
+  });
+
+  ReviFun.registerItem({
+    id: 'etagere-trophees', name: 'Étagère à trophées', desc: 'Elle se remplit toute seule avec tes étoiles et tes trophées !',
+    room: 'salon', price: 150, vb: [120, 150], x: 286, y: 168, w: 90, z: 1,
+    // Coupes = trophées gagnés (1 coupe pour 3 trophées, 4 max) ; étoiles = étoiles gagnées (50 affichées max).
+    svg: ({ stars, trophies }) => {
+      const cups = Math.min(4, Math.ceil(trophies / 3));
+      const shown = Math.min(stars, 50);
+      const cup = x => `
+        <path d="M${x - 9} 16 h18 v6 q0 10 -9 12 q-9 -2 -9 -12 Z" fill="#f6c443" stroke="#c99a1e" stroke-width="1"/>
+        <path d="M${x - 9} 19 q-6 0 -5 6 q1 4 6 4 M${x + 9} 19 q6 0 5 6 q-1 4 -6 4" stroke="#f6c443" stroke-width="2" fill="none"/>
+        <rect x="${x - 2}" y="34" width="4" height="6" fill="#c99a1e"/>
+        <rect x="${x - 7}" y="40" width="14" height="5" rx="1" fill="#8b5e3c"/>`;
+      return `
+        <rect width="120" height="150" rx="4" fill="#6f4529"/>
+        <rect x="6" y="6" width="108" height="42" fill="#3e2a20"/>
+        <rect x="6" y="54" width="108" height="90" fill="#3e2a20"/>
+        <rect x="0" y="46" width="120" height="8" fill="#8a5a3b"/>
+        ${cups ? Array.from({ length: cups }, (_, i) => cup(18 + i * 28)).join('') : '<path d="M48 40 h24" stroke="#5a3a22" stroke-width="3" stroke-dasharray="3 4"/>'}
+        ${Array.from({ length: 50 }, (_, i) => {
+          const cx = 15.5 + (i % 10) * 10;
+          const cy = 64 + Math.floor(i / 10) * 17;
+          return i < shown
+            ? `<path d="${star(cx, cy, 5)}" fill="#f6c443"/>`
+            : `<path d="${star(cx, cy, 4)}" fill="none" stroke="#5a3a22" stroke-width="1"/>`;
+        }).join('')}
+        <rect x="0" y="144" width="120" height="6" fill="#8a5a3b"/>`;
+    },
+  });
+
+  ReviFun.registerItem({
+    id: 'pique-nique', name: 'Pique-nique hanami', desc: 'Onigiris et nappe à carreaux sous les cerisiers.',
+    room: 'jardin', price: 60, vb: [150, 72], x: 10, y: 306, w: 150, z: 3,
+    svg: `
+      <path d="M10 70 L34 34 L146 34 L128 70 Z" fill="#fff"/>
+      ${Array.from({ length: 6 }, (_, c) => Array.from({ length: 3 }, (_, r) => (c + r) % 2 ? '' : `
+        <path d="M${10 + c * 19.7 + r * 8} ${70 - r * 12} l${8} -12 h19.7 l-8 12 Z" fill="#e63946" opacity=".85"/>`).join('')).join('')}
+      <path d="M44 40 q20 -42 44 0" stroke="#8a5523" stroke-width="5" fill="none"/>
+      <path d="M38 38 h56 l-6 26 h-44 Z" fill="#c68642"/>
+      <g stroke="#8a5523" stroke-width="2"><line x1="40" y1="46" x2="92" y2="46"/><line x1="42" y1="54" x2="90" y2="54"/></g>
+      <rect x="36" y="34" width="60" height="7" rx="3" fill="#a0672f"/>
+      <path d="M108 56 l9 -16 l9 16 Z" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
+      <rect x="111" y="49" width="12" height="7" fill="#2d3a2e"/>
+      <path d="M122 64 l8 -14 l8 14 Z" fill="#fff" stroke="#e5e5e5" stroke-width="1"/>
+      <rect x="125" y="58" width="10" height="6" fill="#2d3a2e"/>
+      <g fill="#ffafcc"><ellipse cx="20" cy="60" rx="4" ry="2.5"/><ellipse cx="140" cy="44" rx="4" ry="2.5"/><ellipse cx="70" cy="66" rx="4" ry="2.5"/></g>`,
+  });
+
+  // La surprise : un dragon d'or qui ondule dans le ciel du jardin.
+  const body = [
+    [[60, 100], [110, 30], [180, 155], [245, 90]],
+    [[245, 90], [305, 25], [360, 155], [430, 75]],
+  ];
+  const d = `M60 100 C110 30 180 155 245 90 C305 25 360 155 430 75`;
+  const spikes = body.map(seg => Array.from({ length: 8 }, (_, i) => {
+    const p = bezier(seg, 0.08 + i * 0.12);
+    let nx = -p.ty, ny = p.tx;
+    if (ny > 0) { nx = -nx; ny = -ny; }   // toujours du côté du dos (vers le haut)
+    const b = (k, s) => `${(p.x + nx * k + p.tx * s).toFixed(1)},${(p.y + ny * k + p.ty * s).toFixed(1)}`;
+    return `<path d="M${b(10, -6)} L${b(24, 0)} L${b(10, 6)} Z" fill="#d62828"/>`;
+  }).join('')).join('');
+  const claw = (seg, t) => {
+    const p = bezier(seg, t);
+    const x = p.x.toFixed(1), y = (p.y + 8).toFixed(1);
+    return `<path d="M${x} ${y} l-4 18 M${x} ${y} l2 18" stroke="#e9a825" stroke-width="7" stroke-linecap="round"/>
+      <path d="M${(+x - 10).toFixed(1)} ${(+y + 22).toFixed(1)} l6 -4 l3 6 l3 -6 l6 4" stroke="#b07d12" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  };
+
+  ReviFun.registerItem({
+    id: 'ryu', name: 'Ryū, le dragon d\'or', desc: 'Le gardien légendaire du jardin. Il ondule dans le ciel… Le trésor ultime !',
+    room: 'jardin', price: 1500, vb: [450, 175], x: 296, y: 20, w: 380, z: 0.5,
+    requires: { stars: 20 },
+    svg: `
+      <g class="ryu">
+        ${spikes}
+        ${claw(body[0], 0.55)}${claw(body[1], 0.5)}
+        <path d="${d}" stroke="#b07d12" stroke-width="30" fill="none" stroke-linecap="round"/>
+        <path d="${d}" stroke="#f6c443" stroke-width="24" fill="none" stroke-linecap="round"/>
+        <path d="${d}" stroke="#fff3b0" stroke-width="8" fill="none" stroke-dasharray="7 5"/>
+        <path d="M430 75 q14 -20 10 -40 q-6 14 -16 18 q8 -18 -2 -34 q-4 20 -14 30 q2 -12 -6 -20 q0 22 10 40 Z" fill="#d62828"/>
+        <path d="M70 80 q-6 -30 14 -46 q-2 16 6 22 q4 -22 22 -28 q-10 18 -4 34 Z" fill="#d62828"/>
+        <ellipse cx="62" cy="96" rx="26" ry="19" fill="#f6c443" stroke="#b07d12" stroke-width="3"/>
+        <ellipse cx="38" cy="104" rx="18" ry="11" fill="#f6c443" stroke="#b07d12" stroke-width="3"/>
+        <circle cx="26" cy="100" r="2.5" fill="#7a4b00"/>
+        <path d="M24 112 q12 4 26 -2" stroke="#7a4b00" stroke-width="2.5" fill="none"/>
+        <path d="M66 80 q4 -22 22 -32 M56 80 q-2 -20 10 -34" stroke="#8a5a00" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="60" cy="90" rx="6" ry="7" fill="#fff"/>
+        <circle cx="58" cy="91" r="3.5" fill="#2b2b2b"/>
+        <circle cx="57" cy="89" r="1.2" fill="#fff"/>
+        <path d="M30 108 q-26 4 -26 30 q0 12 10 14 M34 96 q-20 -20 -6 -40" stroke="#b07d12" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="44" cy="146" r="11" fill="#bde0fe" stroke="#fff" stroke-width="2"/>
+        <circle cx="40" cy="142" r="3.5" fill="#fff"/>
+        <path d="M34 122 l8 14 M52 122 l-4 14" stroke="#e9a825" stroke-width="6" stroke-linecap="round"/>
+      </g>`,
+  });
+})();
 
 </script>
 <script>/* data/exercises/01-a-ou-a.js */
@@ -3779,6 +3926,428 @@ ReviFun.registerExercise({
     { type: 'fill', prompt: '🎧 Écoute puis écris le verbe au passé simple', text: 'Ce jour-là, Mochi ___ (devenir) le chat le plus célèbre du quartier.', answers: ['devint'], say: 'Ce jour-là, Mochi devint le chat le plus célèbre du quartier.', explain: 'Devenir, il → devint.' },
     { type: 'errors', text: 'Le dragon [mangat|mangea] une crêpe et les enfants [rièrent|rirent].', explain: 'il mangea (pas de t) ; ils rirent.' },
     { type: 'choice', text: 'Enfin, ils ___ amis pour toujours.', options: ['devinrent', 'devenirent', 'devinèrent'], answer: 'devinrent', explain: 'Devenir, ils → devinrent. (« devinèrent » vient de deviner !)' },
+  ],
+});
+
+</script>
+<script>/* data/exercises/30-ile-et-est.js */
+ReviFun.registerExercise({
+  id: 'ile-et-est',
+  chapter: 'L\'île des mots sosies',
+  order: 300,
+  title: 'et ou est : le retour',
+  subtitle: 'Île des sosies · niveau 1',
+  emoji: '🏝️',
+  color: '#0e7490',
+  sheet: {
+    intro: 'Bienvenue sur <b>l\'île des mots sosies</b> ! Ici vivent des mots qui se prononcent pareil mais qui ne s\'écrivent pas pareil. On commence par nos vieux amis <b>et</b> et <b>est</b>.',
+    cards: [
+      {
+        emoji: '🧍',
+        title: '« est » = le verbe être',
+        html: `<p>On peut le remplacer par <b>était</b> :</p>
+          <ul>
+            <li>Ce dessin <span class="hl">est</span> beau. → Ce dessin <b>était</b> beau. ✅</li>
+            <li>Ce n'<span class="hl">est</span> pas grave. <small>(ce n'était pas grave)</small></li>
+            <li><span class="hl">Est</span>-ce que tu viens ? <small>(question)</small></li>
+          </ul>`,
+      },
+      {
+        emoji: '🔗',
+        title: '« et » = le mot qui relie',
+        html: `<p>On peut le remplacer par <b>et puis</b> :</p>
+          <ul>
+            <li>Paul <span class="hl">et</span> Léa. → Paul <b>et puis</b> Léa. ✅</li>
+            <li>Il rit <span class="hl">et</span> il chante.</li>
+          </ul>`,
+      },
+    ],
+    trick: `Deux tests, deux réponses : <b>était</b> marche → <b>est</b>. <b>et puis</b> marche → <b>et</b>. Sur l'île, on teste toujours avant d'écrire ! 🏝️`,
+  },
+  questions: [
+    { type: 'choice', text: 'Le chocolat ___ fondu ___ délicieux.', options: ['est / et', 'et / est', 'est / est'], answer: 'est / et', explain: 'Le chocolat était fondu (est), et puis délicieux (et).' },
+    { type: 'choice', text: 'Ce n\'___ pas grave !', options: ['et', 'est'], answer: 'est', explain: 'Ce n\'était pas grave → verbe être.' },
+    { type: 'choice', text: '___-ce que tu viens au parc ?', options: ['Et', 'Est'], answer: 'Est', explain: '« Est-ce que » : c\'est le verbe être qui pose la question.' },
+    { type: 'choice', text: 'Elle ___ partie à la piscine ___ à la bibliothèque.', options: ['est / et', 'et / est', 'est / est'], answer: 'est / et', explain: 'Elle était partie (est) ; la piscine et puis la bibliothèque (et).' },
+    { type: 'choice', prompt: 'Quelle phrase est correcte ?', options: ['Le ciel est gris et il pleut.', 'Le ciel et gris est il pleut.', 'Le ciel est gris est il pleut.'], answer: 'Le ciel est gris et il pleut.', explain: 'Le ciel était gris (est), et puis il pleut (et).' },
+    { type: 'fill', prompt: 'Écris et ou est', text: 'Mon cartable ___ lourd ___ plein de livres.', answers: ['est', 'et'], explain: 'était lourd → est ; et puis plein → et.' },
+    { type: 'fill', prompt: 'Écris et ou est', text: 'Paul ___ Léa sont dans la même classe.', answers: ['et'], explain: 'Paul et puis Léa → et.' },
+    { type: 'fill', prompt: 'Écris et ou est', text: 'Qui ___ là ?', answers: ['est'], explain: 'Qui était là ? → est.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris et ou est', text: 'Le chat ___ sur le toit ___ il miaule.', answers: ['est', 'et'], say: 'Le chat est sur le toit et il miaule.', explain: 'était sur le toit → est ; et puis il miaule → et.' },
+    { type: 'errors', text: 'Ce dessin [et|est] beau [est|et] coloré.', explain: 'était beau → est ; et puis coloré → et.' },
+    { type: 'errors', text: 'Ma mère est contente [est|et] mon père [et|est] fier.', explain: 'et puis mon père → et ; mon père était fier → est.' },
+    {
+      type: 'sort',
+      prompt: 'Range chaque phrase : et ou est ?',
+      buckets: ['et', 'est'],
+      items: [
+        { t: 'Où ___ la sortie ?', b: 1 },
+        { t: 'Toi ___ moi.', b: 0 },
+        { t: 'Ce n\'___ rien.', b: 1 },
+        { t: 'Lundi ___ mardi.', b: 0 },
+        { t: 'Tout ___ prêt.', b: 1 },
+        { t: 'Il rit ___ il pleure.', b: 0 },
+      ],
+      explain: '« était » marche → est. « et puis » marche → et.',
+    },
+    { type: 'choice', prompt: 'Par quoi remplace-t-on « et » pour vérifier ?', options: ['et puis', 'était', 'avait'], answer: 'et puis', explain: '« et » relie : on peut dire « et puis ».' },
+  ],
+});
+
+</script>
+<script>/* data/exercises/31-ile-quelle.js */
+ReviFun.registerExercise({
+  id: 'ile-quelle',
+  chapter: 'L\'île des mots sosies',
+  order: 310,
+  title: 'quelle ou qu\'elle ?',
+  subtitle: 'Île des sosies · niveau 1',
+  emoji: '🐚',
+  color: '#c2410c',
+  sheet: {
+    intro: 'Deux sosies très coquins : <b>quelle</b> et <b>qu\'elle</b>. À l\'oral, impossible de les distinguer… mais j\'ai un test imparable !',
+    cards: [
+      {
+        emoji: '❓',
+        title: '« quelle » + un nom',
+        html: `<p>Il pose une question ou s'exclame, et il est suivi d'un <b>nom féminin</b> :</p>
+          <ul>
+            <li><span class="hl">Quelle</span> heure est-il ?</li>
+            <li><span class="hl">Quelle</span> belle surprise !</li>
+          </ul>
+          <p>Au masculin, c'est <b>quel</b> : <i>quel jour, quel film</i>.</p>`,
+      },
+      {
+        emoji: '👧',
+        title: '« qu\'elle » = que + elle',
+        html: `<p>C'est le petit mot <b>que</b> collé à <b>elle</b> (une personne, un animal, une chose) :</p>
+          <ul>
+            <li>Je crois <span class="hl">qu'elle</span> dort.</li>
+            <li>Il faut <span class="hl">qu'elle</span> range sa chambre.</li>
+          </ul>`,
+      },
+      {
+        emoji: '🧪',
+        title: 'Le test magique : remplace « elle » par « il »',
+        html: `<div class="big-rule">qu'<b>il</b> marche → <span class="hl">qu'elle</span> &nbsp;·&nbsp; sinon → <span class="hl">quelle</span></div>
+          <ul>
+            <li>Je crois <b>qu'il</b> dort. ✅ → Je crois <span class="hl">qu'elle</span> dort.</li>
+            <li><b>Qu'il</b> heure est-il ? ❌ → <span class="hl">Quelle</span> heure est-il ?</li>
+          </ul>`,
+      },
+    ],
+    trick: `Je remplace <b>elle</b> par <b>il</b>. Si la phrase a du sens → <b>qu'elle</b>. Si c'est bizarre → <b>quelle</b>. Facile comme un câlin de chat 😽 !`,
+  },
+  questions: [
+    { type: 'choice', text: '___ heure est-il ?', options: ['Quelle', 'Qu\'elle'], answer: 'Quelle', explain: '« Qu\'il heure » ne marche pas → quelle (+ heure).' },
+    { type: 'choice', text: 'Je pense ___ est malade.', options: ['quelle', 'qu\'elle'], answer: 'qu\'elle', explain: 'Je pense qu\'il est malade ✅ → qu\'elle.' },
+    { type: 'choice', text: '___ belle surprise !', options: ['Quelle', 'Qu\'elle'], answer: 'Quelle', explain: 'Une exclamation suivie d\'un nom → quelle.' },
+    { type: 'choice', text: 'Il faut ___ range sa chambre.', options: ['quelle', 'qu\'elle'], answer: 'qu\'elle', explain: 'Il faut qu\'il range ✅ → qu\'elle.' },
+    { type: 'choice', text: 'Je crois ___ a raison.', options: ['quelle', 'qu\'elle', 'quel'], answer: 'qu\'elle', explain: 'Je crois qu\'il a raison ✅ → qu\'elle.' },
+    { type: 'choice', prompt: 'Pour savoir s\'il faut écrire « qu\'elle », je remplace « elle » par…', options: ['il', 'lui', 'eux'], answer: 'il', explain: 'qu\'elle → qu\'il.' },
+    { type: 'fill', prompt: 'Écris quelle ou qu\'elle', text: '___ couleur préfères-tu ?', answers: ['quelle'], explain: 'Une question + un nom (couleur) → quelle.' },
+    { type: 'fill', prompt: 'Écris quelle ou qu\'elle', text: 'Ma sœur dit ___ a faim.', answers: ['qu\'elle'], explain: 'Ma sœur dit qu\'il a faim ✅ → qu\'elle.' },
+    { type: 'fill', prompt: 'Écris quelle ou qu\'elle', text: 'Je me demande ___ histoire il va raconter.', answers: ['quelle'], explain: 'Suivi d\'un nom (histoire) → quelle.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris quelle ou qu\'elle', text: '___ chance ___ soit venue !', answers: ['quelle', 'qu\'elle'], say: 'Quelle chance qu\'elle soit venue !', explain: 'Quelle chance (nom) ; qu\'elle soit venue (qu\'il soit venu).' },
+    { type: 'errors', text: '[Qu\'elle|Quelle] question ! Je crois [quelle|qu\'elle] plaisante.', explain: 'Quelle + question (nom) ; je crois qu\'il plaisante → qu\'elle.' },
+    { type: 'errors', text: 'Dans [qu\'elle|quelle] ville habite ta cousine ? Je sais [quelle|qu\'elle] aime Paris.', explain: 'quelle ville (nom) ; je sais qu\'il aime → qu\'elle.' },
+    {
+      type: 'sort',
+      prompt: 'Range chaque phrase : quelle ou qu\'elle ?',
+      buckets: ['quelle', 'qu\'elle'],
+      items: [
+        { t: '___ joie !', b: 0 },
+        { t: 'J\'espère ___ viendra.', b: 1 },
+        { t: '___ heure ?', b: 0 },
+        { t: 'Il veut ___ chante.', b: 1 },
+        { t: '___ robe préfères-tu ?', b: 0 },
+        { t: 'Je sais ___ ment.', b: 1 },
+      ],
+      explain: 'Suivi d\'un nom → quelle. « qu\'il » marche → qu\'elle.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/32-ile-sest-cest.js */
+ReviFun.registerExercise({
+  id: 'ile-sest-cest',
+  chapter: 'L\'île des mots sosies',
+  order: 320,
+  title: 's\'est ou c\'est ?',
+  subtitle: 'Île des sosies · niveau 1',
+  emoji: '🦀',
+  color: '#7c3aed',
+  sheet: {
+    intro: 'Les jumeaux les plus célèbres de l\'île : <b>c\'est</b> et <b>s\'est</b>. Un seul petit test suffit pour les reconnaître !',
+    cards: [
+      {
+        emoji: '👉',
+        title: '« c\'est » = cela est',
+        html: `<p>On peut le remplacer par <b>cela est</b> ou <b>c'était</b> :</p>
+          <ul>
+            <li><span class="hl">C'est</span> mon meilleur ami. <small>(cela est / c'était mon meilleur ami)</small></li>
+            <li><span class="hl">C'est</span> l'heure de dormir !</li>
+          </ul>`,
+      },
+      {
+        emoji: '🪞',
+        title: '« s\'est » = se + est (un verbe en « se »)',
+        html: `<p>On le trouve avec les verbes qui ont <b>se</b> : se lever, se cacher, se tromper…</p>
+          <ul>
+            <li>Le chat <span class="hl">s'est</span> caché. <small>(se cacher)</small></li>
+            <li>Elle <span class="hl">s'est</span> levée tôt. <small>(se lever)</small></li>
+          </ul>`,
+      },
+      {
+        emoji: '🧪',
+        title: 'Le test magique : mets la phrase avec « je »',
+        html: `<div class="big-rule">je <b>me suis</b> … → <span class="hl">s'est</span> &nbsp;·&nbsp; cela est → <span class="hl">c'est</span></div>
+          <ul>
+            <li>Le chat s'est caché → je <b>me suis</b> caché ✅</li>
+            <li>C'est génial → <b>cela est</b> génial ✅</li>
+          </ul>`,
+      },
+    ],
+    trick: `Le <b>s</b> de <b>s'est</b> vient de « <b>s</b>e » (se cacher, se lever). Le <b>c</b> de <b>c'est</b> vient de « <b>c</b>ela ». Une lettre, un indice 🔍 !`,
+  },
+  questions: [
+    { type: 'choice', text: '___ mon meilleur ami.', options: ['C\'est', 'S\'est'], answer: 'C\'est', explain: 'Cela est mon meilleur ami → c\'est.' },
+    { type: 'choice', text: 'Le chat ___ caché sous le lit.', options: ['c\'est', 's\'est'], answer: 's\'est', explain: 'Se cacher : je me suis caché → s\'est.' },
+    { type: 'choice', text: 'Elle ___ levée tôt.', options: ['c\'est', 's\'est'], answer: 's\'est', explain: 'Se lever : je me suis levée → s\'est.' },
+    { type: 'choice', text: '___ l\'heure de dormir !', options: ['C\'est', 'S\'est'], answer: 'C\'est', explain: 'Cela est l\'heure → c\'est.' },
+    { type: 'choice', text: 'Il ___ trompé de chemin.', options: ['s\'est', 'c\'est', 'ces'], answer: 's\'est', explain: 'Se tromper : je me suis trompé → s\'est.' },
+    { type: 'choice', prompt: 'Le test pour « c\'est » : je remplace par…', options: ['cela est', 'je me suis', 'ses'], answer: 'cela est', explain: 'c\'est = cela est.' },
+    { type: 'fill', prompt: 'Écris c\'est ou s\'est', text: '___ trop drôle !', answers: ['c\'est'], explain: 'Cela est trop drôle → c\'est.' },
+    { type: 'fill', prompt: 'Écris c\'est ou s\'est', text: 'Léo ___ cassé le bras.', answers: ['s\'est'], explain: 'Se casser le bras : je me suis cassé le bras → s\'est.' },
+    { type: 'fill', prompt: 'Écris c\'est ou s\'est', text: 'Le soleil ___ couché derrière la colline.', answers: ['s\'est'], explain: 'Se coucher → s\'est.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris c\'est ou s\'est', text: '___ dimanche : Mochi ___ endormi au soleil.', answers: ['c\'est', 's\'est'], say: 'C\'est dimanche : Mochi s\'est endormi au soleil.', explain: 'Cela est dimanche → c\'est ; s\'endormir → s\'est.' },
+    { type: 'errors', text: '[S\'est|C\'est] incroyable : le chien [c\'est|s\'est] échappé !', explain: 'Cela est incroyable → c\'est ; s\'échapper → s\'est.' },
+    { type: 'errors', text: 'Ma tante [c\'est|s\'est] trompée de route : [s\'est|c\'est] dommage !', explain: 'se tromper → s\'est ; cela est dommage → c\'est.' },
+    {
+      type: 'sort',
+      prompt: 'Range chaque phrase : c\'est ou s\'est ?',
+      buckets: ['c\'est', 's\'est'],
+      items: [
+        { t: '___ ma maison.', b: 0 },
+        { t: 'Il ___ lavé.', b: 1 },
+        { t: '___ facile !', b: 0 },
+        { t: 'Elle ___ assise.', b: 1 },
+        { t: '___ un secret.', b: 0 },
+        { t: 'Le loup ___ approché.', b: 1 },
+      ],
+      explain: 'cela est → c\'est. Un verbe en « se » → s\'est.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/33-ile-et-est-expert.js */
+ReviFun.registerExercise({
+  id: 'ile-et-est-expert',
+  chapter: 'L\'île des mots sosies',
+  order: 330,
+  title: 'et ou est : expert',
+  subtitle: 'Île des sosies · niveau 2',
+  emoji: '🌋',
+  color: '#155e75',
+  sheet: {
+    intro: 'Niveau <b>expert</b> ! Des phrases plus longues, plusieurs sosies à la fois… Garde tes deux tests bien en tête.',
+    cards: [
+      {
+        emoji: '🧪',
+        title: 'Les deux tests',
+        html: `<div class="big-rule">était → <span class="hl">est</span> &nbsp;·&nbsp; et puis → <span class="hl">et</span></div>`,
+      },
+      {
+        emoji: '🕵️',
+        title: 'Les cachettes de « est »',
+        html: `<ul>
+            <li><span class="hl">c'est</span>, <span class="hl">n'est</span> : <i>C'est moi ! Ce n'est rien.</i></li>
+            <li><span class="hl">est-ce que</span>, <span class="hl">qu'est-ce que</span> : <i>Qu'est-ce que c'est ?</i></li>
+            <li><span class="hl">où est</span>, <span class="hl">qui est</span> : <i>Où est passé mon stylo ?</i></li>
+          </ul>`,
+      },
+      {
+        emoji: '📏',
+        title: 'Une méthode pour les phrases longues',
+        html: `<p>Traite chaque trou <b>un par un</b> : relis le morceau de phrase autour, fais le test, puis passe au suivant.</p>`,
+      },
+    ],
+    trick: `Les experts ne devinent jamais : ils <b>testent</b> chaque trou. Même moi, je vérifie trois fois avant de sauter sur la table 😼 !`,
+  },
+  questions: [
+    { type: 'choice', text: 'Le loup ___ affamé ___ il ___ rusé.', options: ['est / et / est', 'et / est / et', 'est / est / est'], answer: 'est / et / est', explain: 'était affamé ; et puis ; était rusé.' },
+    { type: 'choice', text: 'Ton idée ___ géniale !', options: ['et', 'est'], answer: 'est', explain: 'Ton idée était géniale → est.' },
+    { type: 'choice', text: 'Qu\'___-ce que c\'est ?', options: ['est', 'et'], answer: 'est', explain: '« Qu\'est-ce que » contient le verbe être.' },
+    { type: 'choice', prompt: 'Quelle phrase contient une erreur ?', options: ['Le chat et le chien jouent.', 'Le chat est noir et blanc.', 'Le chat et noir.'], answer: 'Le chat et noir.', explain: 'Le chat était noir → il faut « est ».' },
+    { type: 'choice', prompt: '« Il est tard » : par quoi peut-on remplacer « est » ?', options: ['était', 'et puis', 'ai'], answer: 'était', explain: 'Il était tard → verbe être.' },
+    { type: 'fill', prompt: 'Écris et ou est', text: 'La porte ___ fermée ___ la fenêtre ___ ouverte.', answers: ['est', 'et', 'est'], explain: 'était fermée ; et puis ; était ouverte.' },
+    { type: 'fill', prompt: 'Écris et ou est', text: 'Lucas ___ grand ___ sportif.', answers: ['est', 'et'], explain: 'était grand ; et puis sportif.' },
+    { type: 'fill', prompt: 'Écris et ou est', text: 'Ce n\'___ pas fini.', answers: ['est'], explain: 'Ce n\'était pas fini → est.' },
+    { type: 'fill', prompt: 'Écris et ou est', text: 'Où ___ passé mon stylo ?', answers: ['est'], explain: 'Où était passé mon stylo ? → est.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris et ou est', text: 'Mochi ___ gourmand ___ il ___ un peu paresseux.', answers: ['est', 'et', 'est'], say: 'Mochi est gourmand et il est un peu paresseux.', explain: 'était gourmand ; et puis ; était paresseux.' },
+    { type: 'errors', text: 'Le marché [et|est] animé : il y a des fruits [est|et] des légumes, et tout [et|est] frais.', explain: 'était animé → est ; des fruits et puis des légumes → et ; tout était frais → est.' },
+    { type: 'errors', text: '[Et-ce|Est-ce] que ton frère [et|est] là, [est|et] ta sœur aussi ?', explain: 'Est-ce que (question) ; ton frère était là → est ; et puis ta sœur → et.' },
+    {
+      type: 'sort',
+      prompt: 'Range chaque phrase : et ou est ?',
+      buckets: ['et', 'est'],
+      items: [
+        { t: 'Qui ___ venu ?', b: 1 },
+        { t: 'Le sel ___ le poivre.', b: 0 },
+        { t: 'C\'___ moi !', b: 1 },
+        { t: 'Vite ___ bien.', b: 0 },
+        { t: 'Ce film ___ trop long.', b: 1 },
+        { t: 'Lire ___ écrire.', b: 0 },
+      ],
+      explain: '« était » marche → est. « et puis » marche → et.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/34-ile-quel-quelle-expert.js */
+ReviFun.registerExercise({
+  id: 'ile-quel-quelle-expert',
+  chapter: 'L\'île des mots sosies',
+  order: 340,
+  title: 'quel, quelle, qu\'elle : expert',
+  subtitle: 'Île des sosies · niveau 2',
+  emoji: '🐙',
+  color: '#9a3412',
+  sheet: {
+    intro: 'Niveau <b>expert</b> : la famille de « quel » a quatre membres, et « qu\'elle » a aussi un pluriel. Prêt pour le défi ?',
+    cards: [
+      {
+        emoji: '👨‍👩‍👧‍👦',
+        title: '« quel » s\'accorde avec le nom',
+        html: `<div class="table-wrap"><table>
+          <tr><th></th><th>singulier</th><th>pluriel</th></tr>
+          <tr><td>masculin</td><td><span class="hl">quel</span> jour</td><td><span class="hl">quels</span> jours</td></tr>
+          <tr><td>féminin</td><td><span class="hl">quelle</span> heure</td><td><span class="hl">quelles</span> fleurs</td></tr>
+        </table></div>`,
+      },
+      {
+        emoji: '👭',
+        title: '« qu\'elle » et « qu\'elles »',
+        html: `<ul>
+            <li>Je crois <span class="hl">qu'elle</span> dort. → qu'<b>il</b> dort</li>
+            <li>Je sais <span class="hl">qu'elles</span> sont parties. → qu'<b>ils</b> sont partis</li>
+          </ul>`,
+      },
+      {
+        emoji: '🧪',
+        title: 'La méthode en deux étapes',
+        html: `<ol>
+            <li>« qu'il » ou « qu'ils » marche ? → <b>qu'elle(s)</b></li>
+            <li>Sinon, regarde le nom qui suit : masculin ou féminin ? singulier ou pluriel ? → <b>quel, quels, quelle, quelles</b></li>
+          </ol>`,
+      },
+    ],
+    trick: `« Quel » est un caméléon 🦎 : il prend la couleur du nom qui le suit ! Jours → quel<b>s</b>. Fleurs → quel<b>les</b>.`,
+  },
+  questions: [
+    { type: 'choice', text: '___ jour sommes-nous ?', options: ['Quel', 'Quelle', 'Quels'], answer: 'Quel', explain: '« jour » est masculin singulier → quel.' },
+    { type: 'choice', text: '___ fleurs préfères-tu ?', options: ['Quelles', 'Quels', 'Qu\'elles'], answer: 'Quelles', explain: '« fleurs » est féminin pluriel → quelles.' },
+    { type: 'choice', text: '___ beaux dessins !', options: ['Quels', 'Quelles', 'Quel'], answer: 'Quels', explain: '« dessins » est masculin pluriel → quels.' },
+    { type: 'choice', text: 'Je sais ___ sont parties.', options: ['qu\'elles', 'quelles', 'quels'], answer: 'qu\'elles', explain: 'Je sais qu\'ils sont partis ✅ → qu\'elles.' },
+    { type: 'choice', prompt: 'Pour vérifier « qu\'elles », je remplace par…', options: ['qu\'ils', 'quels', 'quelle'], answer: 'qu\'ils', explain: 'qu\'elles → qu\'ils.' },
+    { type: 'fill', prompt: 'Écris quel, quels, quelle, quelles, qu\'elle ou qu\'elles', text: '___ film regardes-tu ?', answers: ['quel'], explain: '« film » est masculin singulier → quel.' },
+    { type: 'fill', prompt: 'Écris quel, quels, quelle, quelles, qu\'elle ou qu\'elles', text: '___ chaussures vas-tu mettre ?', answers: ['quelles'], explain: '« chaussures » est féminin pluriel → quelles.' },
+    { type: 'fill', prompt: 'Écris quel, quels, quelle, quelles, qu\'elle ou qu\'elles', text: 'Mes cousines disent ___ arrivent demain.', answers: ['qu\'elles'], explain: 'Elles disent qu\'ils arrivent ✅ → qu\'elles.' },
+    { type: 'fill', prompt: '🎧 Écoute puis complète', text: '___ livres as-tu lus ? Ceux ___ m\'a prêtés.', answers: ['quels', 'qu\'elle'], say: 'Quels livres as-tu lus ? Ceux qu\'elle m\'a prêtés.', explain: '« livres » masculin pluriel → quels ; ceux qu\'il m\'a prêtés ✅ → qu\'elle.' },
+    { type: 'errors', text: '[Quelles|Quels] gâteaux veux-tu ? Ceux [quelle|qu\'elle] a faits.', explain: 'gâteaux (masculin pluriel) → quels ; ceux qu\'il a faits ✅ → qu\'elle.' },
+    { type: 'errors', text: '[Qu\'elle|Quelle] surprise ! Les filles disent [quelles|qu\'elles] ont gagné.', explain: 'Quelle + surprise ; elles disent qu\'ils ont gagné ✅ → qu\'elles.' },
+    {
+      type: 'match',
+      prompt: 'Relie chaque nom au bon « quel »',
+      pairs: [['jour', 'quel'], ['jours', 'quels'], ['heure', 'quelle'], ['heures', 'quelles']],
+      explain: '« quel » s\'accorde en genre et en nombre avec le nom.',
+    },
+    {
+      type: 'sort',
+      prompt: 'Range chaque phrase : quelle ou qu\'elle ?',
+      buckets: ['quelle', 'qu\'elle'],
+      items: [
+        { t: '___ drôle d\'idée !', b: 0 },
+        { t: 'Il faut ___ se repose.', b: 1 },
+        { t: 'À ___ heure pars-tu ?', b: 0 },
+        { t: 'Je veux ___ gagne.', b: 1 },
+        { t: 'Avec ___ amie joues-tu ?', b: 0 },
+        { t: 'Bien ___ soit petite, elle court vite.', b: 1 },
+      ],
+      explain: 'Suivi d\'un nom → quelle. « qu\'il » marche → qu\'elle.',
+    },
+  ],
+});
+
+</script>
+<script>/* data/exercises/35-ile-sest-cest-expert.js */
+ReviFun.registerExercise({
+  id: 'ile-sest-cest-expert',
+  chapter: 'L\'île des mots sosies',
+  order: 350,
+  title: 's\'est ou c\'est : expert',
+  subtitle: 'Île des sosies · niveau 2',
+  emoji: '🐉',
+  color: '#6d28d9',
+  sheet: {
+    intro: 'Niveau <b>expert</b> : les jumeaux ont des cousins à l\'imparfait (<b>c\'était</b>, <b>s\'était</b>) et au pluriel (<b>ce sont</b>, <b>se sont</b>) !',
+    cards: [
+      {
+        emoji: '👨‍👩‍👧',
+        title: 'Toute la famille',
+        html: `<div class="table-wrap"><table>
+          <tr><th></th><th>cela…</th><th>verbe en « se »</th></tr>
+          <tr><td>présent</td><td><span class="hl">c'est</span></td><td>il <span class="hl">s'est</span> caché</td></tr>
+          <tr><td>imparfait</td><td><span class="hl">c'était</span></td><td>il <span class="hl">s'était</span> caché</td></tr>
+          <tr><td>pluriel</td><td><span class="hl">ce sont</span> mes amis</td><td>ils <span class="hl">se sont</span> cachés</td></tr>
+        </table></div>`,
+      },
+      {
+        emoji: '🧪',
+        title: 'Les tests ne changent pas',
+        html: `<ul>
+            <li>Il y a un verbe en <b>se</b> (se cacher, se lever) ? → <span class="hl">s'</span>, <span class="hl">se</span></li>
+            <li>On peut dire <b>cela</b> ? → <span class="hl">c'</span>, <span class="hl">ce</span></li>
+          </ul>`,
+      },
+    ],
+    trick: `Je cherche le verbe en « se » 🔎 : se réveiller, se salir, se dépêcher… Si je le trouve, c'est la famille du <b>s</b>. Sinon, c'est la famille du <b>c</b> !`,
+  },
+  questions: [
+    { type: 'choice', text: '___ une belle journée.', options: ['C\'était', 'S\'était'], answer: 'C\'était', explain: 'Cela était une belle journée → c\'était.' },
+    { type: 'choice', text: 'Il ___ endormi avant la fin du film.', options: ['s\'était', 'c\'était'], answer: 's\'était', explain: 'S\'endormir : verbe en « se » → s\'était.' },
+    { type: 'choice', text: 'Les enfants ___ cachés dans le jardin.', options: ['se sont', 'ce sont'], answer: 'se sont', explain: 'Se cacher : verbe en « se » → se sont.' },
+    { type: 'choice', text: '___ mes meilleurs amis.', options: ['Ce sont', 'Se sont'], answer: 'Ce sont', explain: 'Ce sont = c\'est au pluriel (cela).' },
+    { type: 'choice', prompt: 'Au pluriel, « c\'est » devient…', options: ['ce sont', 'se sont', 'ces sont'], answer: 'ce sont', explain: 'C\'est mon ami → ce sont mes amis.' },
+    { type: 'fill', prompt: 'Écris c\'est ou s\'est', text: 'Le ciel ___ couvert de nuages.', answers: ['s\'est'], explain: 'Se couvrir : verbe en « se » → s\'est.' },
+    { type: 'fill', prompt: 'Écris c\'est ou c\'était, s\'est ou s\'était', text: '___ la première fois que je vois la mer.', answers: [['c\'est', 'c\'était']], explain: 'Cela est la première fois → c\'est (ou c\'était).' },
+    { type: 'fill', prompt: 'Écris c\'est ou s\'est', text: 'Elle ___ dépêchée pour ne pas rater le bus.', answers: ['s\'est'], explain: 'Se dépêcher → s\'est.' },
+    { type: 'fill', prompt: '🎧 Écoute puis écris c\'est ou s\'est', text: '___ bizarre : la porte ___ ouverte toute seule !', answers: ['c\'est', 's\'est'], say: 'C\'est bizarre : la porte s\'est ouverte toute seule !', explain: 'Cela est bizarre → c\'est ; s\'ouvrir → s\'est.' },
+    { type: 'errors', text: 'Mon frère [c\'est|s\'est] réveillé en retard : [s\'était|c\'était] la panique !', explain: 'Se réveiller → s\'est ; cela était la panique → c\'était.' },
+    { type: 'errors', text: '[Se|Ce] sont mes chaussures : elles [ce|se] sont salies dans la boue.', explain: 'Ce sont (cela) ; se salir → se sont.' },
+    {
+      type: 'match',
+      prompt: 'Relie chaque début à sa fin',
+      pairs: [['Ce sont', 'des pirates.'], ['Ils se sont', 'battus.'], ['C\'était', 'un rêve.'], ['Il s\'était', 'endormi.']],
+      explain: 'Ce sont + un groupe au pluriel ; se battre, s\'endormir : verbes en « se ».',
+    },
+    {
+      type: 'sort',
+      prompt: 'Range chaque phrase : c\'est ou s\'est ?',
+      buckets: ['c\'est', 's\'est'],
+      items: [
+        { t: '___ génial !', b: 0 },
+        { t: 'Elle ___ blessée.', b: 1 },
+        { t: '___ l\'automne.', b: 0 },
+        { t: 'Le vent ___ levé.', b: 1 },
+        { t: '___ à toi de jouer.', b: 0 },
+        { t: 'Il ___ perdu.', b: 1 },
+      ],
+      explain: 'cela est → c\'est. Un verbe en « se » → s\'est.',
+    },
   ],
 });
 
